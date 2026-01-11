@@ -3,79 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamagotchi Pro</title>
+    <title>Tamagotchi TGC</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { 
             font-family: sans-serif; 
-            background: #e5e9f0; /* Фоновый цвет всей игры */
+            background: #e5e9f0; 
             text-align: center; 
             margin: 0; 
-            padding: 20px; 
-            overflow: hidden;
+            padding: 0; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .stat-card { 
-            background: white; 
-            border-radius: 20px; 
-            padding: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+
+        /* Шапка со статами */
+        .header {
+            padding: 20px;
+            background: white;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
+
+        /* Контентные зоны */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: none; /* Прячем все по умолчанию */
+        }
+        .active { display: block; } /* Показываем активную вкладку */
+
+        /* Главная: Кот */
         .pet-container { 
-            margin: 30px auto; 
-            width: 100%;
-            height: 320px; /* Высота под большого кота */
+            margin: 20px auto; 
+            height: 320px; 
             display: flex; 
             justify-content: center; 
             align-items: center;
         }
         .pet-image { 
-            width: 300px; /* УВЕЛИЧЕННЫЙ РАЗМЕР */
+            width: 280px; 
             height: auto; 
-            display: block;
-            background: transparent !important; /* Убираем любой фон у самой картинки */
-            border: none !important;
-            user-select: none;
+            background: transparent !important;
             animation: float 3s ease-in-out infinite;
         }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
         }
+
+        /* Кнопки действий на главной */
         .btn-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             gap: 10px; 
-            max-width: 400px;
-            margin: 0 auto;
+            margin-bottom: 80px;
         }
-        button { 
-            padding: 15px; 
+
+        /* Нижнее меню */
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #8e8e93;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+        }
+        .nav-item.active-nav { color: #0088cc; }
+
+        /* Стили для списков (Магазин и Топ) */
+        .list-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button.action-btn { 
+            padding: 12px; 
             border: none; 
-            border-radius: 12px; 
+            border-radius: 10px; 
             background: #0088cc; 
             color: white; 
             font-weight: bold; 
-            cursor: pointer;
         }
         #clean-btn { background: #ff9800; grid-column: span 2; }
     </style>
 </head>
 <body>
 
-    <div class="stat-card">
-        <h2>Баланс: <span id="money">100</span> 🐾</h2>
-        <p>Сытость: <span id="hunger">100</span>% | Чистота: <span id="clean">100</span>%</p>
+    <div class="header">
+        <h3 style="margin:0">Баланс: <span id="money">100</span> 🐾</h3>
+        <p style="font-size: 14px; color: #666; margin: 5px 0 0 0;">
+            Сытость: <span id="hunger">100</span>% | Чистота: <span id="clean">100</span>%
+        </p>
     </div>
 
-    <div class="pet-container">
-        <img id="pet-img" src="cat.png" alt="Pet" class="pet-image">
+    <div id="home" class="content active">
+        <div class="pet-container">
+            <img id="pet-img" src="cat.png" alt="Pet" class="pet-image">
+        </div>
+        <div class="btn-grid">
+            <button class="action-btn" onclick="action('feed')">Кормить (10🐾)</button>
+            <button class="action-btn" onclick="action('play')">Играть (+15🐾)</button>
+            <button class="action-btn" id="clean-btn" style="display:none;" onclick="cleanPoo()">Убрать 💩</button>
+        </div>
     </div>
 
-    <div class="btn-grid">
-        <button onclick="action('feed')">Кормить (10🐾)</button>
-        <button onclick="action('play')">Играть (+15🐾)</button>
-        <button onclick="action('wash')">Помыть (5🐾)</button>
-        <button onclick="cleanPoo()" id="clean-btn" style="display:none;">Убрать 💩</button>
+    <div id="shop" class="content">
+        <h2>Магазин</h2>
+        <div class="list-item">
+            <span>Витамины (+50 сытости)</span>
+            <button class="action-btn" onclick="buyItem(50)">50🐾</button>
+        </div>
+        <div class="list-item">
+            <span>Золотая игрушка</span>
+            <button class="action-btn" onclick="buyItem(200)">200🐾</button>
+        </div>
+        <p style="color: #666;">Новые скины скоро появятся...</p>
+    </div>
+
+    <div id="top" class="content">
+        <h2>Топ игроков</h2>
+        <div class="list-item"><span>1. Игрок 1256...</span> <b>5000 🐾</b></div>
+        <div class="list-item"><span>2. КотМастер</span> <b>3200 🐾</b></div>
+        <div class="list-item"><span>3. Твой Питомец</span> <b><span class="my-money">100</span> 🐾</b></div>
+    </div>
+
+    <div class="navbar">
+        <button class="nav-item active-nav" onclick="showTab('home', this)">🏠 Главная</button>
+        <button class="nav-item" onclick="showTab('shop', this)">🛒 Магазин</button>
+        <button class="nav-item" onclick="showTab('top', this)">🏆 Топ</button>
     </div>
 
     <script>
@@ -84,8 +160,19 @@
 
         let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
+        function showTab(tabId, btn) {
+            // Переключаем вкладки
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            // Переключаем стиль кнопок в меню
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
+            btn.classList.add('active-nav');
+        }
+
         function updateUI() {
             document.getElementById('money').innerText = state.money;
+            document.querySelectorAll('.my-money').forEach(el => el.innerText = state.money);
             document.getElementById('hunger').innerText = Math.floor(state.hunger);
             document.getElementById('clean').innerText = Math.floor(state.clean);
             document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
@@ -95,14 +182,21 @@
             if (type === 'feed' && state.money >= 10) {
                 state.money -= 10;
                 state.hunger = Math.min(100, state.hunger + 20);
-            } else if (type === 'wash' && state.money >= 5) {
-                state.money -= 5;
-                state.clean = 100;
             } else if (type === 'play') {
                 state.money += 15;
                 state.hunger = Math.max(0, state.hunger - 10);
             }
             updateUI();
+        }
+
+        function buyItem(price) {
+            if (state.money >= price) {
+                state.money -= price;
+                alert("Покупка совершена!");
+                updateUI();
+            } else {
+                alert("Недостаточно лапок!");
+            }
         }
 
         function cleanPoo() {
@@ -111,12 +205,13 @@
             updateUI();
         }
 
+        // Жизненный цикл
         setInterval(() => {
             state.hunger = Math.max(0, state.hunger - 1);
             if (Math.random() > 0.9) state.hasPoo = true;
             if (state.hasPoo) state.clean = Math.max(0, state.clean - 3);
             updateUI();
-        }, 3000);
+        }, 4000);
 
         updateUI();
     </script>
