@@ -41,11 +41,11 @@ body,html{height:100%;margin:0;padding:0;overflow:hidden;background-color:var(--
                 <img id="pet-img" src="cat.jpg" class="pet-img">
             </div>
             <div class="action-area">
-                <button class="btn-custom" onclick="action('feed')"><img src="feed_btn.jpg"></button>
-                <button class="btn-custom" onclick="action('play')"><img src="play_btn.jpg"></button>
+                <button class="btn-custom" onclick="action('feed')"><img id="img-feed" src="feed_btn.jpg"></button>
+                <button class="btn-custom" onclick="action('play')"><img id="img-play" src="play_btn.jpg"></button>
             </div>
         </div>
-        <div id="shop" class="tab"><h2>Магазин</h2><p>Товары появятся в следующем обновлении!</p></div>
+        <div id="shop" class="tab"><h2>Магазин</h2><p>Товары появятся скоро!</p></div>
         <div id="top" class="tab">
             <h2>Топ игроков</h2>
             <ul id="leaderboard-list">Загрузка...</ul>
@@ -70,37 +70,30 @@ const firebaseConfig = {
   measurementId: "G-QH00R44GJ8"
 };
 
-// Инициализация
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let tg = window.Telegram.WebApp;
 tg.expand();
 
-// ID из Telegram или твой ID 1256583707 для теста
 const userId = tg.initDataUnsafe?.user?.id || "1256583707";
 const userName = tg.initDataUnsafe?.user?.first_name || "Игрок";
 
 let state = { money: 100, hunger: 100 };
 
-// Загрузка данных
 async function loadData() {
     try {
         const doc = await db.collection("users").doc(userId.toString()).get();
         if (doc.exists) {
             state = doc.data();
         } else {
-            // Создаем нового пользователя
             state = { money: 100, hunger: 100, name: userName };
             await db.collection("users").doc(userId.toString()).set(state);
         }
         updateUI();
-    } catch (e) {
-        console.error("Ошибка загрузки:", e);
-    }
+    } catch (e) { console.error("Load error:", e); }
 }
 
-// Сохранение данных
 async function saveData() {
     try {
         await db.collection("users").doc(userId.toString()).set({
@@ -108,9 +101,7 @@ async function saveData() {
             name: userName,
             lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-    } catch (e) {
-        console.error("Ошибка сохранения:", e);
-    }
+    } catch (e) { console.error("Save error:", e); }
 }
 
 function updateUI() {
@@ -137,13 +128,12 @@ function switchTab(e, name) {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
     document.getElementById(name).classList.add('active-tab');
     e.currentTarget.classList.add('active-nav');
-    
     if (name === 'top') loadLeaderboard();
 }
 
 async function loadLeaderboard() {
     const list = document.getElementById('leaderboard-list');
-    list.innerHTML = "<li>Загрузка топа...</li>";
+    list.innerHTML = "<li>Загрузка...</li>";
     try {
         const snapshot = await db.collection("users").orderBy("money", "desc").limit(10).get();
         list.innerHTML = "";
@@ -151,20 +141,24 @@ async function loadLeaderboard() {
             const data = doc.data();
             list.innerHTML += `<li><span>👤 ${data.name || 'Аноним'}</span> <b>${data.money} 🐾</b></li>`;
         });
-    } catch (e) {
-        list.innerHTML = "<li>Ошибка загрузки топа</li>";
-    }
+    } catch (e) { list.innerHTML = "<li>Ошибка топа</li>"; }
 }
 
-// Уменьшение голода
 setInterval(() => {
     if (state.hunger > 0) {
         state.hunger = Math.max(0, state.hunger - 1);
         updateUI();
     }
-}, 7000);
+}, 8000);
 
-window.onload = loadData;
+window.onload = async () => {
+    await loadData();
+    // Принудительное обновление путей к картинкам на .jpg
+    const v = Date.now();
+    document.getElementById('pet-img').src = "cat.jpg?v=" + v;
+    document.getElementById('img-feed').src = "feed_btn.jpg?v=" + v;
+    document.getElementById('img-play').src = "play_btn.jpg?v=" + v;
+};
 </script>
 </body>
 </html>
