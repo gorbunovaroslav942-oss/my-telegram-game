@@ -6,57 +6,72 @@
     <title>Tamagotchi 1256583707</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #f4f4f7; --accent: #0088cc; }
+        :root { --bg: #f4f4f7; }
         
         body, html { 
             height: 100%; margin: 0; padding: 0; overflow: hidden; 
-            background-color: var(--bg); font-family: -apple-system, sans-serif; 
+            background-color: var(--bg); font-family: sans-serif; 
         }
 
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; }
+        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
 
         .header {
-            height: 60px; width: 100%; background: #fff; 
+            width: 100%; background: #fff; padding: 12px 0;
             display: flex; justify-content: space-around; align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100;
         }
 
-        .main { 
-            flex: 1; 
-            overflow: hidden; 
-            padding-bottom: 80px; 
+        .main { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-around; }
+        .active-tab { display: flex; }
+
+        .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+        .pet-img { width: 75%; max-width: 300px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* Сетка кнопок */
+        .action-area {
+            width: 95%; 
+            max-width: 500px; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 15px; 
+            padding-bottom: 25px; 
+            margin: 0 auto;
         }
 
-        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; }
-        .active-tab { display: flex; }
-
-        .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; }
-        .pet-img { width: 55%; max-width: 200px; height: auto; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        .action-area {
-            width: 85%; max-width: 320px;
-            display: flex; flex-direction: column; gap: 12px;
-        }
-
-        .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .btn-img { background: transparent !important; border: none !important; padding: 0 !important; cursor: pointer; outline: none; }
-        .btn-img img { width: 100%; height: auto; display: block; }
-        .btn-img:active { transform: scale(0.95); }
-
-        /* ВОЗВРАЩЕННАЯ СИСТЕМНАЯ КНОПКА УБОРКИ */
-        .clean-btn-sys {
+        .top-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             width: 100%;
-            padding: 18px;
+        }
+
+        .btn-custom {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            transition: transform 0.1s ease;
+            transform: scale(1.15); 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-custom:active { transform: scale(1.05); }
+
+        .btn-custom img { width: 100%; height: auto; display: block; }
+
+        /* ОГРОМНАЯ СТАТИЧНАЯ КНОПКА УБОРКИ */
+        .clean-btn-static {
+            width: 100%;
+            padding: 22px; /* Увеличенная высота */
             border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 900;
             text-transform: uppercase;
             transition: 0.3s;
             cursor: pointer;
@@ -64,34 +79,40 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .clean-active { background: #ff9800; color: #fff; }
-        .clean-disabled { background: #d1d1d6; color: #8e8e93; cursor: default; box-shadow: none; }
-
-        /* МЕНЮ СНИЗУ */
-        .navbar { 
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            height: 70px; background: #fff; 
-            display: flex; border-top: 1px solid #ddd; 
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 999;
+        /* Когда есть что убирать */
+        .clean-active {
+            background: #ff9800;
+            color: #fff;
+            animation: pulse 1.5s infinite;
         }
 
-        .nav-item { 
-            flex: 1; border: none; background: none; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: #8e8e93; font-size: 11px; 
+        /* Когда чисто */
+        .clean-disabled {
+            background: #d1d1d6;
+            color: #8e8e93;
+            cursor: default;
+            box-shadow: none;
+            transform: translateY(2px);
         }
-        .active-nav { color: var(--accent) !important; font-weight: bold; }
-        .nav-item span:first-child { font-size: 22px; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
+        .active-nav { color: #0088cc !important; }
+        .nav-item span:first-child { font-size: 24px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header class="header">
-        <div style="font-weight:800;">🐾 <span id="money">100</span></div>
-        <div style="color:#666; font-size: 13px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
+        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
+        <div style="color:#666; font-size:14px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
     </header>
 
     <main class="main">
@@ -100,16 +121,20 @@
                 <img id="pet-img" src="cat.png" class="pet-img">
             </div>
             <div class="action-area">
-                <div class="top-row">
-                    <button class="btn-img" onclick="action('feed')"><img id="img-feed" src="feed_btn.png"></button>
-                    <button class="btn-img" onclick="action('play')"><img id="img-play" src="play_btn.png"></button>
+                <div class="top-btns">
+                    <button class="btn-custom" onclick="action('feed')">
+                        <img id="img-feed" src="feed_btn.png" alt=" ">
+                    </button>
+                    <button class="btn-custom" onclick="action('play')">
+                        <img id="img-play" src="play_btn.png" alt=" ">
+                    </button>
                 </div>
-                <button id="clean-btn" class="clean-btn-sys clean-disabled" onclick="cleanPoo()">
+                
+                <button id="clean-btn" class="clean-btn-static clean-disabled" onclick="cleanPoo()">
                     Нечего убирать!
                 </button>
             </div>
         </div>
-
         <div id="shop" class="tab"><h2>Магазин</h2></div>
         <div id="top" class="tab"><h2>Топ игроков</h2></div>
     </main>
@@ -138,7 +163,7 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
         document.getElementById(name).classList.add('active-tab');
-        if(e) e.currentTarget.classList.add('active-nav');
+        e.currentTarget.classList.add('active-nav');
         tg.HapticFeedback.impactOccurred('light');
     }
 
@@ -147,13 +172,13 @@
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
-        const btn = document.getElementById('clean-btn');
+        const cleanBtn = document.getElementById('clean-btn');
         if (state.hasPoo) {
-            btn.innerText = "🧹 Убрать грязь!";
-            btn.className = "clean-btn-sys clean-active";
+            cleanBtn.innerText = "🧹 УБРАТЬ ГРЯЗЬ!";
+            cleanBtn.className = "clean-btn-static clean-active";
         } else {
-            btn.innerText = "Нечего убирать!";
-            btn.className = "clean-btn-sys clean-disabled";
+            cleanBtn.innerText = "Нечего убирать!";
+            cleanBtn.className = "clean-btn-static clean-disabled";
         }
     }
 
@@ -177,7 +202,8 @@
 
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
-        if (Math.random() > 0.90) state.hasPoo = true;
+        if (Math.random() > 0.90) state.hasPoo = true; // Шанс появления какашек
+        if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
         updateUI();
     }, 5000);
 
