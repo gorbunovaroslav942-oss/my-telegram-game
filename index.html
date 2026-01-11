@@ -3,64 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamagotchi TGC</title>
+    <title>Tamagotchi Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; text-align: center; margin: 0; padding: 20px; }
-        .stat-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .pet-container { margin: 20px 0; min-height: 150px; display: flex; justify-content: center; align-items: center; }
-        .pet-image { width: 150px; height: auto; transition: transform 0.2s; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; border: none; border-radius: 10px; background: #0088cc; color: white; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        #clean-btn { background: #8b4513; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: #e5e9f0; 
+            text-align: center; 
+            margin: 0; 
+            padding: 20px; 
+            user-select: none;
+        }
+        .stat-card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        .pet-container { 
+            margin: 40px 0; 
+            min-height: 200px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            position: relative;
+        }
+        .pet-image { 
+            width: 200px; 
+            height: auto; 
+            /* Анимация покачивания */
+            animation: float 3s ease-in-out infinite;
+            /* Улучшенная тень именно под формой кота */
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .btn-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        button { 
+            padding: 18px; 
+            border: none; 
+            border-radius: 15px; 
+            background: #0088cc; 
+            color: white; 
+            font-size: 14px;
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: transform 0.1s, background 0.2s;
+        }
+        button:active { transform: scale(0.95); }
+        button:disabled { background: #adb5bd; }
+        #clean-btn { background: #ff9800; grid-column: span 2; }
+        
+        .status-text { font-size: 0.9em; color: #666; margin-top: 5px; }
+        b { color: #0088cc; }
     </style>
 </head>
 <body>
 
     <div class="stat-card">
         <h3>Баланс: <span id="money">100</span> 🐾</h3>
-        <p>Сытость: <span id="hunger">100</span>% | Чистота: <span id="clean">100</span>%</p>
+        <div class="status-text">
+            Сытость: <b id="hunger">100</b>% | Чистота: <b id="clean">100</b>%
+        </div>
     </div>
 
     <div class="pet-container">
-        <img id="pet-img" src="cat.png" alt="Кот" class="pet-image">
+        <img id="pet-img" src="cat.png" alt="Мой кот" class="pet-image">
     </div>
 
     <div class="btn-grid">
-        <button onclick="action('feed')">Купить еду (10🐾)</button>
+        <button onclick="action('feed')">Кормить (10🐾)</button>
+        <button onclick="action('play')">Играть (+15🐾)</button>
         <button onclick="action('wash')">Помыть (5🐾)</button>
-        <button onclick="action('play')">Играть (+🐾)</button>
-        <button onclick="cleanPoo()" id="clean-btn" style="display:none;">Убрать 💩</button>
+        <button onclick="cleanPoo()" id="clean-btn" style="display:none;">Убрать 💩 и помыть</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
+        // Состояние игры (в будущем можно сохранять в базу)
+        let state = { 
+            money: 100, 
+            hunger: 100, 
+            clean: 100, 
+            hasPoo: false 
+        };
 
         function updateUI() {
             document.getElementById('money').innerText = state.money;
-            document.getElementById('hunger').innerText = state.hunger;
-            document.getElementById('clean').innerText = state.clean;
+            document.getElementById('hunger').innerText = Math.floor(state.hunger);
+            document.getElementById('clean').innerText = Math.floor(state.clean);
             
-            // Если кот голодный, он становится полупрозрачным (как вариант эффекта)
-            document.getElementById('pet-img').style.opacity = state.hunger < 30 ? '0.6' : '1';
-            
+            // Визуальные эффекты состояния
+            const img = document.getElementById('pet-img');
+            if (state.hunger < 30) {
+                img.style.filter = "grayscale(50%) drop-shadow(0 10px 15px rgba(0,0,0,0.1))";
+            } else {
+                img.style.filter = "grayscale(0%) drop-shadow(0 10px 15px rgba(0,0,0,0.1))";
+            }
+
+            // Кнопка уборки появляется только если грязно
             document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
         }
 
         function action(type) {
-            if (type === 'feed' && state.money >= 10) {
-                state.money -= 10;
-                state.hunger = Math.min(100, state.hunger + 20);
-            } else if (type === 'wash' && state.money >= 5) {
-                state.money -= 5;
-                state.clean = 100;
+            if (type === 'feed') {
+                if (state.money >= 10) {
+                    state.money -= 10;
+                    state.hunger = Math.min(100, state.hunger + 25);
+                    tg.HapticFeedback.impactOccurred('light');
+                }
+            } else if (type === 'wash') {
+                if (state.money >= 5) {
+                    state.money -= 5;
+                    state.clean = 100;
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
             } else if (type === 'play') {
                 state.money += 15;
-                state.hunger -= 10;
+                state.hunger = Math.max(0, state.hunger - 10);
+                tg.HapticFeedback.impactOccurred('medium');
             }
             updateUI();
         }
@@ -68,15 +141,25 @@
         function cleanPoo() {
             state.hasPoo = false;
             state.clean = 100;
+            tg.HapticFeedback.notificationOccurred('success');
             updateUI();
         }
 
+        // Жизненный цикл (каждые 4 секунды)
         setInterval(() => {
-            state.hunger = Math.max(0, state.hunger - 2);
-            if (Math.random() > 0.8) state.hasPoo = true;
-            if (state.hasPoo) state.clean = Math.max(0, state.clean - 5);
+            state.hunger = Math.max(0, state.hunger - 1.5);
+            
+            // Шанс того, что питомец напачкает
+            if (Math.random() > 0.85 && !state.hasPoo) {
+                state.hasPoo = true;
+            }
+
+            if (state.hasPoo) {
+                state.clean = Math.max(0, state.clean - 4);
+            }
+
             updateUI();
-        }, 5000);
+        }, 4000);
 
         updateUI();
     </script>
