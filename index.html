@@ -15,18 +15,16 @@
 
         .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; }
 
-        /* Фиксированная шапка */
         .header {
             height: 60px; width: 100%; background: #fff; 
             display: flex; justify-content: space-around; align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100;
         }
 
-        /* Контентная область */
         .main { 
             flex: 1; 
             overflow: hidden; 
-            padding-bottom: 80px; /* ОТСТУП, чтобы кнопки не залезли под меню */
+            padding-bottom: 80px; 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -38,33 +36,45 @@
 
         .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; }
         .pet-img { width: 55%; max-width: 200px; height: auto; animation: float 3s ease-in-out infinite; }
-
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* Кнопки */
         .action-area {
-            width: 80%; max-width: 300px;
-            display: flex; flex-direction: column; gap: 8px;
+            width: 85%; max-width: 320px;
+            display: flex; flex-direction: column; gap: 12px;
         }
 
-        .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        .btn-img { background: transparent !important; border: none !important; padding: 0 !important; cursor: pointer; }
+        .btn-img { background: transparent !important; border: none !important; padding: 0 !important; cursor: pointer; outline: none; }
         .btn-img img { width: 100%; height: auto; display: block; }
         .btn-img:active { transform: scale(0.95); }
 
-        /* ЖЕСТКО ЗАФИКСИРОВАННОЕ МЕНЮ */
+        /* ВОЗВРАЩЕННАЯ СИСТЕМНАЯ КНОПКА УБОРКИ */
+        .clean-btn-sys {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .clean-active { background: #ff9800; color: #fff; }
+        .clean-disabled { background: #d1d1d6; color: #8e8e93; cursor: default; box-shadow: none; }
+
+        /* МЕНЮ СНИЗУ */
         .navbar { 
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70px; 
-            background: #fff; 
-            display: flex; 
-            border-top: 1px solid #ddd; 
+            bottom: 0; left: 0; right: 0;
+            height: 70px; background: #fff; 
+            display: flex; border-top: 1px solid #ddd; 
             padding-bottom: env(safe-area-inset-bottom);
-            z-index: 999; /* Поверх всего */
+            z-index: 999;
         }
 
         .nav-item { 
@@ -94,8 +104,8 @@
                     <button class="btn-img" onclick="action('feed')"><img id="img-feed" src="feed_btn.png"></button>
                     <button class="btn-img" onclick="action('play')"><img id="img-play" src="play_btn.png"></button>
                 </div>
-                <button id="clean-btn" class="btn-img" onclick="cleanPoo()">
-                    <img id="img-clean" src="clean_disabled.png">
+                <button id="clean-btn" class="clean-btn-sys clean-disabled" onclick="cleanPoo()">
+                    Нечего убирать!
                 </button>
             </div>
         </div>
@@ -119,7 +129,6 @@
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
-        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
         document.getElementById('pet-img').src = "cat.png?v=" + v;
     };
 
@@ -137,7 +146,15 @@
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
-        document.getElementById('img-clean').src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
+        
+        const btn = document.getElementById('clean-btn');
+        if (state.hasPoo) {
+            btn.innerText = "🧹 Убрать грязь!";
+            btn.className = "clean-btn-sys clean-active";
+        } else {
+            btn.innerText = "Нечего убирать!";
+            btn.className = "clean-btn-sys clean-disabled";
+        }
     }
 
     function action(type) {
