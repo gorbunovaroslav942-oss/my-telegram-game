@@ -41,11 +41,11 @@ function updateUI() {
     const btnStatic = document.getElementById('clean-static');
 
     if (state.hasPoo) {
-        btnActive.style.display = 'block';
+        btnActive.style.display = 'flex';
         btnStatic.style.display = 'none';
     } else {
         btnActive.style.display = 'none';
-        btnStatic.style.display = 'block';
+        btnStatic.style.display = 'flex';
     }
 }
 
@@ -79,3 +79,4 @@ setInterval(() => {
     if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
     updateUI();
 }, 5000);
+
