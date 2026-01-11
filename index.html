@@ -9,17 +9,15 @@
         :root {
             --tg-theme-bg: #f4f4f7;
             --tg-theme-accent: #0088cc;
-            --tg-theme-text: #222;
         }
 
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Никакой прокрутки */
+            overflow: hidden;
             background-color: var(--tg-theme-bg);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: var(--tg-theme-text);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .app-wrapper {
@@ -27,42 +25,32 @@
             flex-direction: column;
             height: 100vh;
             width: 100%;
+            align-items: center; /* Центровка по горизонтали всего приложения */
         }
 
-        /* Шапка с балансом */
+        /* Шапка */
         .header {
+            width: 100%;
             background: #fff;
-            padding: 10px 20px;
+            padding: 12px 0;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            z-index: 10;
+            box-sizing: border-box;
         }
 
-        .balance-box {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 800;
-            font-size: 18px;
-        }
-
-        .stats-row {
-            display: flex;
-            gap: 15px;
-            font-size: 13px;
-            color: #666;
-        }
+        .balance-box { font-weight: 800; font-size: 18px; }
+        .stats-row { font-size: 14px; color: #666; display: flex; gap: 15px; }
 
         /* Контентная область */
         .main-content {
             flex: 1;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-evenly; /* Равномерно распределяет кота и кнопки */
-            align-items: center;
-            padding: 10px;
+            align-items: center; /* Центровка содержимого вкладок */
+            justify-content: center;
         }
 
         .tab-content {
@@ -70,25 +58,25 @@
             width: 100%;
             height: 100%;
             flex-direction: column;
-            align-items: center;
-            justify-content: space-evenly;
+            align-items: center; /* Центровка кота и кнопок */
+            justify-content: space-around; /* Равномерный отступ сверху и снизу */
         }
 
         .active-tab { display: flex; }
 
         /* Кот */
         .pet-stage {
-            flex: 1;
+            width: 100%;
             display: flex;
-            align-items: center;
             justify-content: center;
-            max-height: 50%;
+            align-items: center;
+            flex: 1;
         }
 
         .pet-image {
-            max-width: 80%;
-            max-height: 100%;
-            object-fit: contain;
+            max-width: 280px;
+            width: 70%;
+            height: auto;
             background: transparent !important;
             animation: float 3s ease-in-out infinite;
             filter: drop-shadow(0 15px 15px rgba(0,0,0,0.1));
@@ -101,25 +89,26 @@
 
         /* Кнопки действий */
         .action-area {
-            width: 100%;
-            max-width: 320px;
+            width: 90%;
+            max-width: 340px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            padding-bottom: 20px;
+            padding-bottom: 30px; /* Отступ от нижнего меню */
+            margin: 0 auto;
         }
 
         .btn {
             border: none;
             border-radius: 16px;
-            padding: 16px 10px;
-            font-size: 15px;
+            padding: 16px 5px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.1s;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 5px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
@@ -131,6 +120,7 @@
 
         /* Нижнее меню */
         .navbar {
+            width: 100%;
             height: 75px;
             background: #fff;
             display: flex;
@@ -154,13 +144,13 @@
         .nav-btn.active { color: #0088cc; }
         .nav-btn span:first-child { font-size: 24px; }
 
-        /* Магазин и Топ */
+        /* Списки */
         .list-card {
             background: #fff;
-            width: 90%;
+            width: 85%;
             padding: 15px;
             border-radius: 15px;
-            margin-bottom: 10px;
+            margin: 5px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -171,9 +161,7 @@
 
 <div class="app-wrapper">
     <header class="header">
-        <div class="balance-box">
-            <span>🐾</span> <span id="money">100</span>
-        </div>
+        <div class="balance-box">🐾 <span id="money">100</span></div>
         <div class="stats-row">
             <div>🍖 <span id="hunger">100</span>%</div>
             <div>✨ <span id="clean">100</span>%</div>
@@ -187,54 +175,41 @@
             </div>
             <div class="action-area">
                 <button class="btn btn-blue" onclick="action('feed')">
-                    <span>🍎</span> <span>Кормить (10)</span>
+                    <span>🍎</span><span>Кормить (10)</span>
                 </button>
                 <button class="btn btn-green" onclick="action('play')">
-                    <span>🎮</span> <span>Играть (+15)</span>
+                    <span>🎮</span><span>Играть (+15)</span>
                 </button>
                 <button id="clean-btn" class="btn btn-orange" style="display:none;" onclick="cleanPoo()">
-                    <span>🧹</span> <span>Убрать за котом</span>
+                    <span>🧹</span><span>Убрать за котом</span>
                 </button>
             </div>
         </div>
 
         <div id="shop" class="tab-content">
             <h2 style="margin: 10px 0;">Магазин</h2>
-            <div class="list-card">
-                <span>🐟 Вкусная рыбка</span>
-                <button class="btn btn-blue" style="padding: 8px 15px;" onclick="buy(50)">50 🐾</button>
-            </div>
-            <div class="list-card">
-                <span>🧶 Клубок ниток</span>
-                <button class="btn btn-blue" style="padding: 8px 15px;" onclick="buy(150)">150 🐾</button>
-            </div>
+            <div class="list-card"><span>🐟 Рыбка</span><button class="btn btn-blue" style="padding: 8px 15px;" onclick="buy(50)">50</button></div>
+            <div class="list-card"><span>🧶 Клубок</span><button class="btn btn-blue" style="padding: 8px 15px;" onclick="buy(150)">150</button></div>
         </div>
 
         <div id="top" class="tab-content">
             <h2 style="margin: 10px 0;">Лидеры</h2>
-            <div class="list-card"><span>1. 🥇 КотМагнат</span> <b>9999</b></div>
-            <div class="list-card"><span>2. 🥈 Барон</span> <b>5400</b></div>
-            <div class="list-card"><span>3. 🥉 Вы (ID 1256...)</span> <b class="my-money">100</b></div>
+            <div class="list-card"><span>🥇 КотМагнат</span> <b>9999</b></div>
+            <div class="list-card"><span>🥈 Барон</span> <b>5400</b></div>
+            <div class="list-card"><span>🥉 Вы</span> <b class="my-money">100</b></div>
         </div>
     </main>
 
     <nav class="navbar">
-        <button class="nav-btn active" onclick="switchTab(event, 'home')">
-            <span>🏠</span><span>Главная</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab(event, 'shop')">
-            <span>🛒</span><span>Магазин</span>
-        </button>
-        <button class="nav-btn" onclick="switchTab(event, 'top')">
-            <span>🏆</span><span>Топ</span>
-        </button>
+        <button class="nav-btn active" onclick="switchTab(event, 'home')"><span>🏠</span><span>Главная</span></button>
+        <button class="nav-btn" onclick="switchTab(event, 'shop')"><span>🛒</span><span>Магазин</span></button>
+        <button class="nav-btn" onclick="switchTab(event, 'top')"><span>🏆</span><span>Топ</span></button>
     </nav>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
-    tg.ready();
 
     let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
@@ -252,9 +227,6 @@
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         document.getElementById('clean-btn').style.display = state.hasPoo ? 'flex' : 'none';
-        
-        // Кот становится грустным, если голоден
-        document.getElementById('pet-img').style.filter = state.hunger < 30 ? 'grayscale(0.8)' : 'none';
     }
 
     function action(type) {
@@ -271,8 +243,7 @@
     }
 
     function cleanPoo() {
-        state.hasPoo = false;
-        state.clean = 100;
+        state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
     }
@@ -287,7 +258,6 @@
         }
     }
 
-    // Жизненный цикл
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
         if (Math.random() > 0.95) state.hasPoo = true;
