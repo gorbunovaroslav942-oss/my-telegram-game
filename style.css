@@ -1,7 +1,6 @@
 :root { 
     --bg: #f4f4f7; 
-    --btn-height: 80px; 
-    --active-color: #0088cc;
+    --btn-height: 75px; /* Высота всех кнопок */
 }
 
 body, html { 
@@ -30,7 +29,7 @@ body, html {
 }
 
 .pet-img { 
-    max-height: 90%; max-width: 80%; 
+    max-height: 80%; max-width: 80%; 
     object-fit: contain; 
     animation: float 3s ease-in-out infinite; 
 }
@@ -41,11 +40,11 @@ body, html {
 }
 
 .action-area {
-    width: 90%; max-width: 400px;
+    width: 90%; max-width: 380px;
     margin: 0 auto 20px auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
     flex-shrink: 0;
 }
 
@@ -56,29 +55,35 @@ body, html {
     cursor: pointer;
     height: var(--btn-height);
     width: 100%;
-    display: flex;
-    justify-content: center; /* Центрируем картинку по горизонтали */
-    align-items: center;    /* Центрируем картинку по вертикали */
+    display: flex; /* Для центрирования */
+    justify-content: center;
+    align-items: center;
     transition: transform 0.1s ease;
-    overflow: hidden;
 }
 
 .btn-img:active { transform: scale(0.96); }
 
+/* Обычные кнопки (сохраняют пропорции) */
 .btn-img img { 
-    height: 100%;           /* Картинка всегда занимает всю высоту (80px) */
-    width: auto;            /* Ширина подстраивается автоматически, чтобы не было растягивания */
+    height: 100%; 
+    width: auto; 
     max-width: 100%;
-    object-fit: contain;    /* Сохраняет пропорции без искажений */
+    object-fit: contain; 
     display: block;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
+/* Нижняя кнопка (растягивается в длину) */
 .full-width { grid-column: span 2; }
-
 .full-width img {
-    width: 100%;            /* Растягиваем только нижнюю кнопку по ширине */
-    object-fit: fill;       /* Либо 'cover', если не хочешь искажений */
+    width: 100%;
+    object-fit: fill; /* Заполняет всю ширину ряда */
+}
+
+.navbar { 
+    width: 100%; height: 70px; background: #fff; display: flex; 
+    border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom);
+    flex-shrink: 0;
 }
 
 .nav-item { 
@@ -87,6 +92,4 @@ body, html {
     align-items: center; justify-content: center; 
     color: #8e8e93; font-size: 11px; 
 }
-
-.active-nav { color: var(--active-color) !important; }
-
+.active-nav { color: #0088cc !important; }
