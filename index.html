@@ -1,87 +1,42 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tamagotchi 1256583707</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --bg: #f4f4f7; }
-        body, html { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg); font-family: sans-serif; }
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
-        
-        .header { width: 100%; background: #fff; padding: 12px 0; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100; }
-        
-        .main { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-around; }
-        .active-tab { display: flex; }
-
-        .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { width: 75%; max-width: 300px; height: auto; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
-        .action-area { width: 95%; max-width: 500px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 20px; }
-        .btn-custom { background: transparent !important; border: none !important; padding: 0 !important; cursor: pointer; transform: scale(1.1); -webkit-tap-highlight-color: transparent; }
-        .btn-custom img { width: 100%; height: auto; display: block; }
-
-        .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
-        .active-nav { color: #0088cc !important; }
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    <header class="header">
-        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
-        <div style="color:#666; font-size:14px;">🍖 <span id="hunger">100</span>%</div>
-    </header>
-
-    <main class="main">
-        <div id="home" class="tab active-tab">
-            <div class="pet-stage">
-                <img id="pet-img" src="cat.png" class="pet-img">
-            </div>
-            <div class="action-area">
-                <button class="btn-custom" onclick="action('feed')">
-                    <img id="img-feed" src="feed_btn.png">
-                </button>
-                <button class="btn-custom" onclick="action('play')">
-                    <img id="img-play" src="play_btn.png">
-                </button>
-            </div>
-        </div>
-        <div id="shop" class="tab"><h2>Магазин</h2></div>
-        <div id="top" class="tab"><h2>Топ</h2></div>
-    </main>
-
-    <nav class="navbar">
-        <button class="nav-item active-nav" onclick="switchTab(event, 'home')"><span>🏠</span><span>Главная</span></button>
-        <button class="nav-item" onclick="switchTab(event, 'shop')"><span>🛒</span><span>Магазин</span></button>
-        <button class="nav-item" onclick="switchTab(event, 'top')"><span>🏆</span><span>Топ</span></button>
-    </nav>
-</div>
-
-<script>
-    let tg = window.Telegram.WebApp;
+let tg = window.Telegram.WebApp;
     tg.expand();
+    tg.ready(); // Сообщаем Telegram, что приложение готово
 
-    // Загрузка (теперь без системы чистоты)
+    // Загрузка состояния с проверкой на валидность
     let state = JSON.parse(localStorage.getItem('pet_v_final')) || { money: 100, hunger: 100 };
 
     function updateUI() {
-        document.getElementById('money').innerText = state.money;
-        document.getElementById('hunger').innerText = Math.floor(state.hunger);
+        const moneyEl = document.getElementById('money');
+        const hungerEl = document.getElementById('hunger');
+        
+        moneyEl.innerText = state.money;
+        hungerEl.innerText = Math.floor(state.hunger);
+
+        // Визуальное предупреждение, если питомец голоден
+        hungerEl.parentElement.style.color = state.hunger < 20 ? "#ff3b30" : "#666";
+
         localStorage.setItem('pet_v_final', JSON.stringify(state));
     }
 
     function action(type) {
-        if (type === 'feed' && state.money >= 10) {
-            state.money -= 10; state.hunger = Math.min(100, state.hunger + 25);
-            tg.HapticFeedback.notificationOccurred('success');
+        if (type === 'feed') {
+            if (state.money >= 10 && state.hunger < 100) {
+                state.money -= 10;
+                state.hunger = Math.min(100, state.hunger + 25);
+                tg.HapticFeedback.notificationOccurred('success');
+            } else if (state.money < 10) {
+                tg.HapticFeedback.notificationOccurred('error');
+                alert("Недостаточно монет!");
+            }
         } else if (type === 'play') {
-            state.money += 15; state.hunger = Math.max(0, state.hunger - 15);
-            tg.HapticFeedback.impactOccurred('medium');
+            if (state.hunger > 10) {
+                state.money += 15;
+                state.hunger = Math.max(0, state.hunger - 15);
+                tg.HapticFeedback.impactOccurred('medium');
+            } else {
+                tg.HapticFeedback.notificationOccurred('warning');
+                alert("Питомец слишком голоден для игр!");
+            }
         }
         updateUI();
     }
@@ -91,20 +46,29 @@
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
         document.getElementById(name).classList.add('active-tab');
         e.currentTarget.classList.add('active-nav');
+        tg.HapticFeedback.selectionChanged();
     }
 
+    // Пассивное уменьшение голода (раз в 10 секунд для баланса)
     setInterval(() => {
-        state.hunger = Math.max(0, state.hunger - 1);
-        updateUI();
-    }, 5000);
+        if (state.hunger > 0) {
+            state.hunger = Math.max(0, state.hunger - 1);
+            updateUI();
+        }
+    }, 10000);
 
     window.onload = () => {
+        // Добавляем версию к картинкам для обхода кэша (антикеш)
         const v = Date.now();
-        document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
-        document.getElementById('img-play').src = "play_btn.png?v=" + v;
-        document.getElementById('pet-img').src = "cat.png?v=" + v;
+        const images = {
+            'img-feed': 'feed_btn.png',
+            'img-play': 'play_btn.png',
+            'pet-img': 'cat.png'
+        };
+        
+        for (let id in images) {
+            const el = document.getElementById(id);
+            if (el) el.src = `${images[id]}?v=${v}`;
+        }
         updateUI();
     };
-</script>
-</body>
-</html>
