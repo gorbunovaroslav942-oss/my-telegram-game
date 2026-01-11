@@ -20,7 +20,7 @@ body,html{height:100%;margin:0;padding:0;overflow:hidden;background-color:var(--
 .pet-img{width:75%;max-width:300px;height:auto;animation:float 3s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
 .action-area{width:95%;max-width:500px;display:grid;grid-template-columns:1fr 1fr;gap:15px;padding-bottom:30px;}
-.btn-custom{background:none;border:none;padding:0;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;}
+.btn-custom{background:none;border:none;padding:0;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;min-height:60px;}
 .btn-custom img{width:100%;height:auto;display:block;border-radius:15px;}
 .navbar{width:100%;height:75px;background:#fff;display:flex;border-top:1px solid #ddd;padding-bottom:env(safe-area-inset-bottom);}
 .nav-item{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8e8e93;font-size:11px;}
@@ -63,7 +63,6 @@ body,html{height:100%;margin:0;padding:0;overflow:hidden;background-color:var(--
 </div>
 
 <script>
-// Твой конфиг
 const firebaseConfig = {
   apiKey: "AIzaSyAP_Rf44bvkeINAJWSuWz9DCgLqzmqG39k",
   authDomain: "tamagotchigame-2cc40.firebaseapp.com",
@@ -141,7 +140,7 @@ async function loadLeaderboard() {
         list.innerHTML = "";
         snapshot.forEach(doc => {
             const data = doc.data();
-            list.innerHTML += `<li><span>👤 ${data.name || 'Игрок'}</span> <b>${data.money} 🐾</b></li>`;
+            list.innerHTML += `<li><span>👤 ${data.name || 'Аноним'}</span> <b>${data.money} 🐾</b></li>`;
         });
     } catch (e) { list.innerHTML = "<li>Ошибка топа</li>"; }
 }
@@ -153,7 +152,31 @@ setInterval(() => {
     }
 }, 10000);
 
-window.onload = loadData;
+// Умная загрузка картинок
+window.onload = async () => {
+    await loadData();
+    
+    const timestamp = Date.now();
+    const imgs = {
+        'pet-img': 'cat.png',
+        'img-feed': 'feed_btn.png',
+        'img-play': 'play_btn.png'
+    };
+
+    for (const [id, src] of Object.entries(imgs)) {
+        const el = document.getElementById(id);
+        if (el) {
+            // Добавляем ?v= для сброса кэша GitHub
+            el.src = src + "?v=" + timestamp;
+            // Если ошибка (например, файл реально .jpg), пробуем сменить расширение
+            el.onerror = () => {
+                if (el.src.includes('.png')) {
+                    el.src = src.replace('.png', '.jpg') + "?v=" + timestamp;
+                }
+            };
+        }
+    }
+};
 </script>
 </body>
 </html>
