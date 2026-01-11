@@ -1,10 +1,8 @@
 let tg = window.Telegram.WebApp;
 tg.expand();
 
-// Переменные состояния
 let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
-// Предзагрузка ресурсов и кеш-брейкер
 window.onload = () => {
     const v = Date.now();
     const assets = {
@@ -22,7 +20,6 @@ window.onload = () => {
     updateUI();
 };
 
-// Переключение вкладок
 function switchTab(e, name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
@@ -31,7 +28,6 @@ function switchTab(e, name) {
     tg.HapticFeedback.impactOccurred('light');
 }
 
-// Обновление интерфейса
 function updateUI() {
     document.getElementById('money').innerText = state.money;
     document.getElementById('hunger').innerText = Math.floor(state.hunger);
@@ -41,15 +37,14 @@ function updateUI() {
     const btnStatic = document.getElementById('clean-static');
 
     if (state.hasPoo) {
-        btnActive.style.display = 'flex';
+        btnActive.style.display = 'flex'; // Используем flex для центрирования
         btnStatic.style.display = 'none';
     } else {
         btnActive.style.display = 'none';
-        btnStatic.style.display = 'flex';
+        btnStatic.style.display = 'flex'; // Используем flex для центрирования
     }
 }
 
-// Основные действия
 function action(type) {
     if (type === 'feed' && state.money >= 10) {
         state.money -= 10; 
@@ -63,7 +58,6 @@ function action(type) {
     updateUI();
 }
 
-// Очистка
 function cleanPoo() {
     if (!state.hasPoo) return;
     state.hasPoo = false; 
@@ -72,11 +66,9 @@ function cleanPoo() {
     updateUI();
 }
 
-// Игровой цикл
 setInterval(() => {
     state.hunger = Math.max(0, state.hunger - 1);
     if (Math.random() > 0.90) state.hasPoo = true;
     if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
     updateUI();
 }, 5000);
-
