@@ -29,7 +29,6 @@
         .pet-img { width: 75%; max-width: 300px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* МАКСИМАЛЬНОЕ УВЕЛИЧЕНИЕ КНОПОК */
         .action-area {
             width: 98%; 
             max-width: 500px; 
@@ -63,9 +62,18 @@
             background: transparent !important;
         }
 
+        /* Системная кнопка уборки (оранжевая) */
         .clean-btn-sys {
-            grid-column: span 2; background: #ff9800; color: #fff;
-            border: none; border-radius: 15px; padding: 15px; font-weight: bold; margin-top: 10px;
+            grid-column: span 2; 
+            background: #ff9800; 
+            color: #fff;
+            border: none; 
+            border-radius: 15px; 
+            padding: 15px; 
+            font-weight: bold; 
+            margin-top: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
@@ -94,7 +102,7 @@
                 <button class="btn-custom" onclick="action('play')">
                     <img id="img-play" src="play_btn.png" alt=" ">
                 </button>
-                <button id="clean-btn" class="clean-btn-sys" style="display:none;" onclick="cleanPoo()">🧹 УБРАТЬ</button>
+                <button id="clean-btn" class="clean-btn-sys" style="display:none;" onclick="cleanPoo()">🧹 УБРАТЬ ГРЯЗЬ</button>
             </div>
         </div>
         <div id="shop" class="tab"><h2>Магазин</h2></div>
@@ -133,6 +141,7 @@
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
+        // Показываем кнопку только когда есть грязь
         document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
     }
 
