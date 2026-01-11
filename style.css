@@ -25,7 +25,7 @@ body, html {
 }
 
 .pet-img { 
-    max-height: 85%; max-width: 85%; 
+    max-height: 80%; max-width: 80%; 
     object-fit: contain; 
     animation: float 3s ease-in-out infinite; 
 }
@@ -35,15 +35,16 @@ body, html {
     50% { transform: translateY(-15px); } 
 }
 
-/* СЕТКА КНОПОК */
+/* СЕТКА КНОПОК - подбираем пропорции как на скриншоте */
 .action-area {
     width: 90%; 
     max-width: 380px;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 25px auto;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Две колонки */
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
     flex-shrink: 0;
+    align-items: center;
 }
 
 .btn-img {
@@ -52,37 +53,24 @@ body, html {
     padding: 0 !important;
     cursor: pointer;
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
     transition: transform 0.1s ease;
 }
 
 .btn-img:active { transform: scale(0.96); }
 
-/* Обычные кнопки (Кормить и Играть) */
-/* aspect-ratio: 1 / 1 делает их строго квадратными */
-.btn-img:not(.full-width) {
-    aspect-ratio: 1 / 1; 
-}
-
+/* Картинки внутри кнопок теперь просто занимают всю ширину, 
+   а высота подстраивается автоматически по картинке */
 .btn-img img { 
     width: 100%; 
-    height: 100%; 
-    object-fit: contain; /* Картинка вписывается внутрь, не растягиваясь */
+    height: auto; 
     display: block;
 }
 
-/* Нижняя кнопка (Убрать) */
+/* Нижняя кнопка «Убрать» */
 .full-width { 
     grid-column: span 2; 
-    /* Здесь настраиваем высоту нижней кнопки относительно её длины */
-    aspect-ratio: 3 / 1; 
-}
-
-.full-width img {
-    object-fit: fill; /* Растягиваем картинку уборки на всю длину */
-    border-radius: 15px;
+    margin-top: 5px;
 }
 
 .navbar { 
