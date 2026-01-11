@@ -21,8 +21,19 @@
         .btn-custom { background: transparent !important; border: none !important; padding: 0 !important; cursor: pointer; width: 100%; transform: scale(1.15); -webkit-tap-highlight-color: transparent; }
         .btn-custom img { width: 100%; height: auto; display: block; }
 
-        /* Оранжевая кнопка - появляется ТОЛЬКО когда грязно */
-        .clean-btn-sys { grid-column: span 2; background: #ff9800; color: #fff; border: none; border-radius: 15px; padding: 15px; font-weight: bold; margin-top: 10px; display: none; }
+        /* Новое имя класса и ID для исключения конфликтов кэша */
+        .new-clean-btn { 
+            grid-column: span 2; 
+            background: #ff9800 !important; 
+            color: #fff !important; 
+            border: none; 
+            border-radius: 15px; 
+            padding: 15px; 
+            font-weight: bold; 
+            margin-top: 10px; 
+            display: none; /* Изначально скрыта */
+            cursor: pointer;
+        }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
@@ -43,7 +54,7 @@
             <div class="action-area">
                 <button class="btn-custom" onclick="action('feed')"><img id="img-feed" src="feed_btn.png"></button>
                 <button class="btn-custom" onclick="action('play')"><img id="img-play" src="play_btn.png"></button>
-                <button id="clean-btn" class="clean-btn-sys" onclick="cleanPoo()">🧹 УБРАТЬ ГРЯЗЬ</button>
+                <button id="clean-system-btn" class="new-clean-btn" onclick="cleanPoo()">🧹 УБРАТЬ ГРЯЗЬ</button>
             </div>
         </div>
         <div id="shop" class="tab"><h2>Магазин</h2></div>
@@ -61,39 +72,36 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Загрузка данных
-    let savedData = JSON.parse(localStorage.getItem('pet_state')) || { money: 100, hunger: 100, clean: 100, hasPoo: false };
-    let state = savedData;
+    // Загрузка
+    let state = JSON.parse(localStorage.getItem('pet_state_v2')) || { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
     window.onload = () => {
+        // Очистка кэшированных картинок
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
         document.getElementById('pet-img').src = "cat.png?v=" + v;
+        
+        // ПРИНУДИТЕЛЬНОЕ УДАЛЕНИЕ СТАРЫХ КНОПОК ИЗ DOM (если они выжили в кэше)
+        const oldBtn = document.getElementById('clean-btn');
+        if (oldBtn) oldBtn.remove();
+        
         updateUI();
     };
 
-    function save() { localStorage.setItem('pet_state', JSON.stringify(state)); }
-
-    function switchTab(e, name) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
-        document.getElementById(name).classList.add('active-tab');
-        e.currentTarget.classList.add('active-nav');
-        tg.HapticFeedback.impactOccurred('light');
-    }
+    function save() { localStorage.setItem('pet_state_v2', JSON.stringify(state)); }
 
     function updateUI() {
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
-        // Жесткое управление видимостью кнопки
-        const cleanBtn = document.getElementById('clean-btn');
+        // Управление новой кнопкой
+        const btn = document.getElementById('clean-system-btn');
         if (state.hasPoo) {
-            cleanBtn.style.setProperty('display', 'block', 'important');
+            btn.style.display = 'block';
         } else {
-            cleanBtn.style.setProperty('display', 'none', 'important');
+            btn.style.display = 'none';
         }
         save();
     }
@@ -115,10 +123,16 @@
         updateUI();
     }
 
+    function switchTab(e, name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
+        document.getElementById(name).classList.add('active-tab');
+        e.currentTarget.classList.add('active-nav');
+    }
+
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
         if (Math.random() > 0.95) state.hasPoo = true;
-        if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
         updateUI();
     }, 5000);
 
