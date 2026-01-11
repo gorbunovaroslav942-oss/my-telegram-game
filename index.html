@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tamagotchi 1256583707</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 <style>
 :root{--bg:#f4f4f7;}
 body,html{height:100%;margin:0;padding:0;overflow:hidden;background-color:var(--bg);font-family:sans-serif;}
 .app-container{display:flex;flex-direction:column;height:100vh;width:100%;align-items:center;}
 .header{width:100%;background:#fff;padding:12px 0;display:flex;justify-content:space-around;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);z-index:100;}
 .main{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.tab{display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:space-around;}
+.tab{display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}
 .active-tab{display:flex;}
 .pet-stage{flex:1;display:flex;align-items:center;justify-content:center;width:100%;}
 .pet-img{width:75%;max-width:300px;height:auto;animation:float 3s ease-in-out infinite;}
@@ -22,45 +25,146 @@ body,html{height:100%;margin:0;padding:0;overflow:hidden;background-color:var(--
 .navbar{width:100%;height:75px;background:#fff;display:flex;border-top:1px solid #ddd;padding-bottom:env(safe-area-inset-bottom);}
 .nav-item{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8e8e93;font-size:11px;}
 .active-nav{color:#0088cc!important;}
+#leaderboard-list { width: 100%; list-style: none; padding: 0; margin-top: 20px; }
+#leaderboard-list li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 8px; }
 </style>
 </head>
 <body>
 <div class="app-container">
-<header class="header">
-<div style="font-weight:800;font-size:20px;">🐾 <span id="money">100</span></div>
-<div style="color:#666;font-size:14px;">🍖 <span id="hunger">100</span>%</div>
-</header>
-<main class="main">
-<div id="home" class="tab active-tab">
-<div class="pet-stage">
-<img id="pet-img" src="cat.png" class="pet-img">
+    <header class="header">
+        <div style="font-weight:800;font-size:20px;">🐾 <span id="money">...</span></div>
+        <div style="color:#666;font-size:14px;">🍖 <span id="hunger">...</span>%</div>
+    </header>
+    <main class="main">
+        <div id="home" class="tab active-tab">
+            <div class="pet-stage">
+                <img id="pet-img" src="cat.jpg" class="pet-img">
+            </div>
+            <div class="action-area">
+                <button class="btn-custom" onclick="action('feed')"><img src="feed_btn.jpg"></button>
+                <button class="btn-custom" onclick="action('play')"><img src="play_btn.jpg"></button>
+            </div>
+        </div>
+        <div id="shop" class="tab"><h2>Магазин</h2><p>Товары появятся в следующем обновлении!</p></div>
+        <div id="top" class="tab">
+            <h2>Топ игроков</h2>
+            <ul id="leaderboard-list">Загрузка...</ul>
+        </div>
+    </main>
+    <nav class="navbar">
+        <button class="nav-item active-nav" onclick="switchTab(event,'home')"><span>🏠</span><span>Главная</span></button>
+        <button class="nav-item" onclick="switchTab(event,'shop')"><span>🛒</span><span>Магазин</span></button>
+        <button class="nav-item" onclick="switchTab(event,'top')"><span>🏆</span><span>Топ</span></button>
+    </nav>
 </div>
-<div class="action-area">
-<button class="btn-custom" onclick="action('feed')">
-<img id="img-feed" src="feed_btn.png">
-</button>
-<button class="btn-custom" onclick="action('play')">
-<img id="img-play" src="play_btn.png">
-</button>
-</div>
-</div>
-<div id="shop" class="tab"><h2>Магазин</h2></div>
-<div id="top" class="tab"><h2>Топ</h2></div>
-</main>
-<nav class="navbar">
-<button class="nav-item active-nav" onclick="switchTab(event,'home')"><span>🏠</span><span>Главная</span></button>
-<button class="nav-item" onclick="switchTab(event,'shop')"><span>🛒</span><span>Магазин</span></button>
-<button class="nav-item" onclick="switchTab(event,'top')"><span>🏆</span><span>Топ</span></button>
-</nav>
-</div>
+
 <script>
-let tg=window.Telegram.WebApp;tg.expand();
-let state=JSON.parse(localStorage.getItem('pet_v_final'))||{money:100,hunger:100};
-function updateUI(){document.getElementById('money').innerText=state.money;document.getElementById('hunger').innerText=Math.floor(state.hunger);localStorage.setItem('pet_v_final',JSON.stringify(state));}
-function action(type){if(type==='feed'&&state.money>=10){state.money-=10;state.hunger=Math.min(100,state.hunger+25);tg.HapticFeedback.notificationOccurred('success');}else if(type==='play'){state.money+=15;state.hunger=Math.max(0,state.hunger-15);tg.HapticFeedback.impactOccurred('medium');}updateUI();}
-function switchTab(e,name){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active-tab'));document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active-nav'));document.getElementById(name).classList.add('active-tab');e.currentTarget.classList.add('active-nav');}
-setInterval(()=>{state.hunger=Math.max(0,state.hunger-1);updateUI();},5000);
-window.onload=()=>{const v=Date.now();document.getElementById('img-feed').src="feed_btn.png?v="+v;document.getElementById('img-play').src="play_btn.png?v="+v;document.getElementById('pet-img').src="cat.png?v="+v;updateUI();};
+// Твои настройки Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyAP_Rf44bvkeINAJWSuWz9DCgLqzmqG39k",
+  authDomain: "tamagotchigame-2cc40.firebaseapp.com",
+  projectId: "tamagotchigame-2cc40",
+  storageBucket: "tamagotchigame-2cc40.firebasestorage.app",
+  messagingSenderId: "1038723221462",
+  appId: "1:1038723221462:web:0a0d6ee11b8b747e544677",
+  measurementId: "G-QH00R44GJ8"
+};
+
+// Инициализация
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let tg = window.Telegram.WebApp;
+tg.expand();
+
+// ID из Telegram или твой ID 1256583707 для теста
+const userId = tg.initDataUnsafe?.user?.id || "1256583707";
+const userName = tg.initDataUnsafe?.user?.first_name || "Игрок";
+
+let state = { money: 100, hunger: 100 };
+
+// Загрузка данных
+async function loadData() {
+    try {
+        const doc = await db.collection("users").doc(userId.toString()).get();
+        if (doc.exists) {
+            state = doc.data();
+        } else {
+            // Создаем нового пользователя
+            state = { money: 100, hunger: 100, name: userName };
+            await db.collection("users").doc(userId.toString()).set(state);
+        }
+        updateUI();
+    } catch (e) {
+        console.error("Ошибка загрузки:", e);
+    }
+}
+
+// Сохранение данных
+async function saveData() {
+    try {
+        await db.collection("users").doc(userId.toString()).set({
+            ...state,
+            name: userName,
+            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+    } catch (e) {
+        console.error("Ошибка сохранения:", e);
+    }
+}
+
+function updateUI() {
+    document.getElementById('money').innerText = state.money;
+    document.getElementById('hunger').innerText = Math.floor(state.hunger);
+}
+
+async function action(type) {
+    if(type === 'feed' && state.money >= 10){
+        state.money -= 10;
+        state.hunger = Math.min(100, state.hunger + 25);
+        tg.HapticFeedback.notificationOccurred('success');
+    } else if(type === 'play'){
+        state.money += 15;
+        state.hunger = Math.max(0, state.hunger - 15);
+        tg.HapticFeedback.impactOccurred('medium');
+    }
+    updateUI();
+    await saveData();
+}
+
+function switchTab(e, name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
+    document.getElementById(name).classList.add('active-tab');
+    e.currentTarget.classList.add('active-nav');
+    
+    if (name === 'top') loadLeaderboard();
+}
+
+async function loadLeaderboard() {
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = "<li>Загрузка топа...</li>";
+    try {
+        const snapshot = await db.collection("users").orderBy("money", "desc").limit(10).get();
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            list.innerHTML += `<li><span>👤 ${data.name || 'Аноним'}</span> <b>${data.money} 🐾</b></li>`;
+        });
+    } catch (e) {
+        list.innerHTML = "<li>Ошибка загрузки топа</li>";
+    }
+}
+
+// Уменьшение голода
+setInterval(() => {
+    if (state.hunger > 0) {
+        state.hunger = Math.max(0, state.hunger - 1);
+        updateUI();
+    }
+}, 7000);
+
+window.onload = loadData;
 </script>
 </body>
 </html>
