@@ -5,18 +5,12 @@ let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
 window.onload = () => {
     const v = Date.now();
-    const assets = {
-        'img-feed': 'feed_btn.png',
-        'img-play': 'play_btn.png',
-        'img-clean-static': 'clean_disabled.png',
-        'img-clean-active': 'clean_active.png',
-        'pet-img': 'cat.png'
-    };
-    
-    for (let id in assets) {
-        let el = document.getElementById(id);
-        if (el) el.src = assets[id] + "?v=" + v;
-    }
+    // Обновляем пути (проверь расширения .jpg или .png у себя!)
+    document.getElementById('img-feed').src = "feed_btn.jpg?v=" + v;
+    document.getElementById('img-play').src = "play_btn.jpg?v=" + v;
+    document.getElementById('img-clean-static').src = "clean_disabled.png?v=" + v;
+    document.getElementById('img-clean-active').src = "clean_active.png?v=" + v;
+    document.getElementById('pet-img').src = "cat.jpg?v=" + v;
     updateUI();
 };
 
@@ -37,11 +31,11 @@ function updateUI() {
     const btnStatic = document.getElementById('clean-static');
 
     if (state.hasPoo) {
-        btnActive.style.display = 'block'; // Используем flex для центрирования
+        btnActive.style.display = 'block';
         btnStatic.style.display = 'none';
     } else {
         btnActive.style.display = 'none';
-        btnStatic.style.display = 'block'; // Используем flex для центрирования
+        btnStatic.style.display = 'block';
     }
 }
 
@@ -72,4 +66,3 @@ setInterval(() => {
     if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
     updateUI();
 }, 5000);
-
