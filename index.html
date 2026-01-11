@@ -26,21 +26,22 @@
         .active-tab { display: flex; }
 
         .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { width: 75%; max-width: 300px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
+        .pet-img { width: 70%; max-width: 280px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
+        /* ОБЛАСТЬ КНОПОК */
         .action-area {
-            width: 98%; 
-            max-width: 500px; 
+            width: 90%; 
+            max-width: 400px; 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 5px; 
+            gap: 10px; 
             padding-bottom: 20px; 
             margin: 0 auto;
         }
 
-        /* Твои кнопки-картинки */
-        .btn-custom {
+        /* Стиль для всех кнопок-картинок */
+        .btn-img-wrapper {
             background: transparent !important;
             border: none !important;
             padding: 0 !important;
@@ -51,35 +52,21 @@
             display: block;
             -webkit-tap-highlight-color: transparent;
             transition: transform 0.1s ease;
-            transform: scale(1.15); 
         }
 
-        .btn-custom:active { transform: scale(1.0); }
+        .btn-img-wrapper:active { transform: scale(0.95); }
 
-        .btn-custom img {
+        .btn-img-wrapper img {
             width: 100%;
             height: auto;
             display: block;
-            background: transparent !important;
         }
 
-        /* Новая статичная кнопка уборки (картинка) */
-        .clean-btn-img {
-            grid-column: span 2; /* Растягиваем на всю ширину */
-            margin-top: 15px;
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            cursor: pointer;
-            width: 100%;
-            display: block;
-            transform: scale(1.15); /* Тот же масштаб, что у верхних кнопок */
-            -webkit-tap-highlight-color: transparent;
-            transition: transform 0.1s ease;
+        /* Кнопка УБОРКИ (на всю ширину) */
+        .clean-btn-static {
+            grid-column: span 2;
+            margin-top: 5px;
         }
-        
-        .clean-btn-img:active { transform: scale(1.05); }
-        .clean-btn-img img { width: 100%; height: auto; display: block; }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
@@ -101,15 +88,15 @@
                 <img id="pet-img" src="cat.png" class="pet-img">
             </div>
             <div class="action-area">
-                <button class="btn-custom" onclick="action('feed')">
-                    <img id="img-feed" src="feed_btn.png" alt=" ">
+                <button class="btn-img-wrapper" onclick="action('feed')">
+                    <img id="img-feed" src="feed_btn.png" alt="Кормить">
                 </button>
-                <button class="btn-custom" onclick="action('play')">
-                    <img id="img-play" src="play_btn.png" alt=" ">
+                <button class="btn-img-wrapper" onclick="action('play')">
+                    <img id="img-play" src="play_btn.png" alt="Играть">
                 </button>
                 
-                <button id="clean-btn" class="clean-btn-img" onclick="cleanPoo()">
-                    <img id="img-clean" src="clean_disabled.png" alt=" ">
+                <button id="clean-btn" class="btn-img-wrapper clean-btn-static" onclick="cleanPoo()">
+                    <img id="img-clean" src="clean_disabled.png" alt="Уборка">
                 </button>
             </div>
         </div>
@@ -128,11 +115,12 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
+    // Обновление путей к картинкам с защитой от кэша
     window.onload = () => {
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
-        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v; // Грузим дефолтную
+        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
         document.getElementById('pet-img').src = "cat.png?v=" + v;
     };
 
@@ -151,7 +139,7 @@
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
-        // Смена картинки на кнопке уборки
+        // Переключение картинок кнопки уборки
         const cleanImg = document.getElementById('img-clean');
         if (state.hasPoo) {
             cleanImg.src = "clean_active.png";
@@ -172,7 +160,7 @@
     }
 
     function cleanPoo() {
-        if (!state.hasPoo) return; // Если убирать нечего, кнопка ничего не делает
+        if (!state.hasPoo) return;
         state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
