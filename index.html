@@ -15,7 +15,7 @@
 
         .app-container { 
             display: flex; flex-direction: column; 
-            height: 100vh; width: 100vw; align-items: center;
+            height: 100vh; width: 100vw;
         }
 
         .header {
@@ -25,54 +25,49 @@
         }
 
         .main { 
-            flex: 1; width: 100%; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; 
-            min-height: 0; padding: 10px 0;
+            flex: 1; /* Занимает всё пространство между шапкой и меню */
+            display: flex; flex-direction: column; 
+            min-height: 0; 
         }
 
+        /* Область с котом — теперь она ГЛАВНАЯ и не может исчезнуть */
         .pet-stage { 
-            flex: 1.5; display: flex; align-items: center; justify-content: center; 
-            width: 100%; min-height: 0;
+            flex: 1; /* Растягивается максимально */
+            display: flex; align-items: center; justify-content: center; 
+            width: 100%; min-height: 100px; /* Минимум 100px всегда зарезервировано */
         }
         .pet-img { 
-            max-height: 90%; max-width: 80%; 
+            max-height: 90%; max-width: 85%; 
             object-fit: contain;
             animation: float 3s ease-in-out infinite; 
         }
 
-        /* ОБЛАСТЬ КНОПОК */
+        /* Область кнопок — фиксируем её снизу */
         .action-area {
-            width: 92%; max-width: 380px;
+            width: 94%; max-width: 380px;
+            margin: 0 auto 15px auto; /* Центрируем и даем отступ снизу */
             display: flex; flex-direction: column; 
-            flex-shrink: 0; margin-bottom: 5px;
+            flex-shrink: 0; /* ЗАПРЕЩАЕМ этой области сжиматься */
         }
 
         .top-row {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
-            width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
         }
 
         .btn-action {
             background: transparent; border: none; padding: 0;
             cursor: pointer; width: 100%; outline: none;
-            display: flex; justify-content: center; align-items: center;
         }
 
-        /* Убираем обрезку и ставим нормальный размер */
         .btn-action img {
-            width: 100%; 
-            height: auto;
-            display: block;
-            transition: transform 0.1s;
+            width: 100%; height: auto; display: block;
         }
 
-        /* Немного отступаем сверху для кнопки уборки */
         .btn-full-container {
-            width: 100%;
-            margin-top: -5px; 
+            width: 100%; margin-top: 5px;
         }
 
-        .btn-action:active img { transform: scale(0.95); }
+        .btn-action:active { transform: scale(0.95); }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
@@ -86,7 +81,6 @@
             align-items: center; justify-content: center; 
             color: #8e8e93; font-size: 11px;
         }
-        .active-nav { color: #0088cc; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -121,7 +115,7 @@
     </main>
 
     <nav class="navbar">
-        <div class="nav-item active-nav">🏠<br>Главная</div>
+        <div class="nav-item">🏠<br>Главная</div>
         <div class="nav-item">🛒<br>Магазин</div>
         <div class="nav-item">🏆<br>Топ</div>
     </nav>
