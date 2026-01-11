@@ -29,17 +29,17 @@
         .pet-img { width: 75%; max-width: 300px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* МАКСИМАЛЬНОЕ УВЕЛИЧЕНИЕ КНОПОК */
         .action-area {
             width: 98%; 
-            max-width: 500px; /* Увеличено до максимума */
+            max-width: 500px; 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 5px; /* Минимальный зазор для максимизации размера */
+            gap: 5px; 
             padding-bottom: 20px; 
             margin: 0 auto;
         }
 
+        /* Твои кнопки-картинки */
         .btn-custom {
             background: transparent !important;
             border: none !important;
@@ -51,11 +51,10 @@
             display: block;
             -webkit-tap-highlight-color: transparent;
             transition: transform 0.1s ease;
-            /* Принудительный масштаб всей кнопки */
             transform: scale(1.15); 
         }
 
-        .btn-custom:active { transform: scale(1.0); /* Эффект нажатия при уже увеличенном размере */ }
+        .btn-custom:active { transform: scale(1.0); }
 
         .btn-custom img {
             width: 100%;
@@ -64,10 +63,23 @@
             background: transparent !important;
         }
 
-        .clean-btn-sys {
-            grid-column: span 2; background: #ff9800; color: #fff;
-            border: none; border-radius: 15px; padding: 15px; font-weight: bold; margin-top: 10px;
+        /* Новая статичная кнопка уборки (картинка) */
+        .clean-btn-img {
+            grid-column: span 2; /* Растягиваем на всю ширину */
+            margin-top: 15px;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            transform: scale(1.15); /* Тот же масштаб, что у верхних кнопок */
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s ease;
         }
+        
+        .clean-btn-img:active { transform: scale(1.05); }
+        .clean-btn-img img { width: 100%; height: auto; display: block; }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
@@ -95,7 +107,10 @@
                 <button class="btn-custom" onclick="action('play')">
                     <img id="img-play" src="play_btn.png" alt=" ">
                 </button>
-                <button id="clean-btn" class="clean-btn-sys" style="display:none;" onclick="cleanPoo()">🧹 УБРАТЬ</button>
+                
+                <button id="clean-btn" class="clean-btn-img" onclick="cleanPoo()">
+                    <img id="img-clean" src="clean_disabled.png" alt=" ">
+                </button>
             </div>
         </div>
         <div id="shop" class="tab"><h2>Магазин</h2></div>
@@ -117,6 +132,7 @@
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
+        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v; // Грузим дефолтную
         document.getElementById('pet-img').src = "cat.png?v=" + v;
     };
 
@@ -134,7 +150,14 @@
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
-        document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
+        
+        // Смена картинки на кнопке уборки
+        const cleanImg = document.getElementById('img-clean');
+        if (state.hasPoo) {
+            cleanImg.src = "clean_active.png";
+        } else {
+            cleanImg.src = "clean_disabled.png";
+        }
     }
 
     function action(type) {
@@ -149,6 +172,7 @@
     }
 
     function cleanPoo() {
+        if (!state.hasPoo) return; // Если убирать нечего, кнопка ничего не делает
         state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
