@@ -8,100 +8,57 @@
     <style>
         :root { --bg: #f4f4f7; }
         body, html { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg); font-family: sans-serif; }
+        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
         
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; }
+        .header { width: 100%; background: #fff; padding: 12px 0; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100; }
+        
+        .main { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-around; }
+        .active-tab { display: flex; }
 
-        /* Фиксированный верх */
-        .header {
-            height: 60px; background: #fff; display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0;
-        }
+        .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+        .pet-img { width: 75%; max-width: 300px; height: auto; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Центр с котом - растягивается */
-        .main-content { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .pet-img { width: 50%; max-width: 200px; height: auto; animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .action-area { width: 95%; max-width: 500px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 20px; }
+        .btn-custom { background: transparent !important; border: none !important; padding: 0 !important; cursor: pointer; transform: scale(1.1); -webkit-tap-highlight-color: transparent; }
+        .btn-custom img { width: 100%; height: auto; display: block; }
 
-        /* БЛОК КНОПОК - ПРИЖАТ К НИЗУ */
-        .controls-area {
-            flex-shrink: 0;
-            width: 100%;
-            padding: 10px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: transparent;
-            margin-bottom: 75px; /* Место для навбара */
-        }
-
-        .button-grid {
-            width: 90%;
-            max-width: 360px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .btn-img {
-            background: transparent; border: none; padding: 0; cursor: pointer; width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn-img img { width: 100%; height: auto; display: block; border-radius: 10px; }
-
-        /* Кнопка Уборки на всю ширину */
-        .clean-btn-full {
-            grid-column: span 2;
-            margin-top: 5px;
-            min-height: 50px;
-            background: #eee; /* Заглушка если нет фото */
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        /* Фиксированное меню */
-        .navbar {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
-            background: #fff; display: flex; border-top: 1px solid #ddd;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+        .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
+        .active-nav { color: #0088cc !important; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="header">
-        <b>🐾 <span id="money">100</span></b>
-        <span style="font-size: 14px; color: #666;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</span>
-    </div>
+    <header class="header">
+        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
+        <div style="color:#666; font-size:14px;">🍖 <span id="hunger">100</span>%</div>
+    </header>
 
-    <div class="main-content">
-        <img id="pet-img" src="cat.png" class="pet-img" alt="Кот">
-    </div>
-
-    <div class="controls-area">
-        <div class="button-grid">
-            <button class="btn-img" onclick="action('feed')">
-                <img id="img-feed" src="feed_btn.png" alt="ЕДА">
-            </button>
-            <button class="btn-img" onclick="action('play')">
-                <img id="img-play" src="play_btn.png" alt="ИГРА">
-            </button>
-            
-            <button id="clean-btn" class="btn-img clean-btn-full" onclick="cleanPoo()">
-                <img id="img-clean" src="clean_disabled.png" alt="УБРАТЬ">
-            </button>
+    <main class="main">
+        <div id="home" class="tab active-tab">
+            <div class="pet-stage">
+                <img id="pet-img" src="cat.png" class="pet-img">
+            </div>
+            <div class="action-area">
+                <button class="btn-custom" onclick="action('feed')">
+                    <img id="img-feed" src="feed_btn.png">
+                </button>
+                <button class="btn-custom" onclick="action('play')">
+                    <img id="img-play" src="play_btn.png">
+                </button>
+            </div>
         </div>
-    </div>
+        <div id="shop" class="tab"><h2>Магазин</h2></div>
+        <div id="top" class="tab"><h2>Топ</h2></div>
+    </main>
 
     <nav class="navbar">
-        <button class="nav-item" style="color:#0088cc">🏠<br>Главная</button>
-        <button class="nav-item">🛒<br>Магазин</button>
-        <button class="nav-item">🏆<br>Топ</button>
+        <button class="nav-item active-nav" onclick="switchTab(event, 'home')"><span>🏠</span><span>Главная</span></button>
+        <button class="nav-item" onclick="switchTab(event, 'shop')"><span>🛒</span><span>Магазин</span></button>
+        <button class="nav-item" onclick="switchTab(event, 'top')"><span>🏆</span><span>Топ</span></button>
     </nav>
 </div>
 
@@ -109,17 +66,13 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
+    // Загрузка (теперь без системы чистоты)
+    let state = JSON.parse(localStorage.getItem('pet_v_final')) || { money: 100, hunger: 100 };
 
     function updateUI() {
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
-        document.getElementById('clean').innerText = Math.floor(state.clean);
-        
-        const cleanImg = document.getElementById('img-clean');
-        const v = Date.now();
-        // Меняем картинку
-        cleanImg.src = state.hasPoo ? "clean_active.png?v="+v : "clean_disabled.png?v="+v;
+        localStorage.setItem('pet_v_final', JSON.stringify(state));
     }
 
     function action(type) {
@@ -133,25 +86,23 @@
         updateUI();
     }
 
-    function cleanPoo() {
-        if (!state.hasPoo) return;
-        state.hasPoo = false; state.clean = 100;
-        tg.HapticFeedback.notificationOccurred('success');
-        updateUI();
+    function switchTab(e, name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
+        document.getElementById(name).classList.add('active-tab');
+        e.currentTarget.classList.add('active-nav');
     }
 
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
-        if (Math.random() > 0.90) state.hasPoo = true;
         updateUI();
     }, 5000);
 
-    // Первичная подгрузка путей
     window.onload = () => {
         const v = Date.now();
-        document.getElementById('img-feed').src = "feed_btn.png?v="+v;
-        document.getElementById('img-play').src = "play_btn.png?v="+v;
-        document.getElementById('pet-img').src = "cat.png?v="+v;
+        document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
+        document.getElementById('img-play').src = "play_btn.png?v=" + v;
+        document.getElementById('pet-img').src = "cat.png?v=" + v;
         updateUI();
     };
 </script>
