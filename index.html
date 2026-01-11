@@ -29,7 +29,6 @@
         .pet-img { width: 75%; max-width: 280px; height: auto; display: block; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* ФИКСИРОВАННАЯ ОБЛАСТЬ КНОПОК */
         .action-area {
             width: 90%; 
             max-width: 400px; 
@@ -37,7 +36,7 @@
             flex-direction: column;
             gap: 10px; 
             padding-bottom: 20px;
-            margin-bottom: 10px; /* Запас перед набаром */
+            margin-bottom: 10px;
         }
 
         .top-row {
@@ -47,7 +46,6 @@
             width: 100%;
         }
 
-        /* Общий стиль кнопок */
         .btn-img {
             background: transparent !important;
             border: none !important;
@@ -61,16 +59,17 @@
         .btn-img:active { transform: scale(0.95); }
         .btn-img img { width: 100%; height: auto; display: block; }
 
-        /* Кнопка УБРАТЬ всегда внизу и большая */
         .clean-wrap {
             width: 100%;
             display: flex;
             justify-content: center;
+            height: 80px; /* Фиксируем высоту, чтобы интерфейс не прыгал */
+            align-items: center;
         }
 
         .clean-btn-custom {
             width: 100%;
-            transform: scale(1.1); /* Делаем её чуть массивнее */
+            transform: scale(1.1);
         }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
@@ -104,8 +103,12 @@
                 </div>
                 
                 <div class="clean-wrap">
-                    <button id="clean-btn" class="btn-img clean-btn-custom" onclick="cleanPoo()">
-                        <img id="img-clean" src="clean_disabled.png">
+                    <div id="clean-static" class="btn-img clean-btn-custom">
+                        <img id="img-clean-static" src="clean_disabled.png">
+                    </div>
+
+                    <button id="clean-btn" class="btn-img clean-btn-custom" onclick="cleanPoo()" style="display: none;">
+                        <img id="img-clean-active" src="clean_active.png">
                     </button>
                 </div>
             </div>
@@ -126,12 +129,12 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Кеш-брейкер для всех картинок
     window.onload = () => {
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
-        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
+        document.getElementById('img-clean-static').src = "clean_disabled.png?v=" + v;
+        document.getElementById('img-clean-active').src = "clean_active.png?v=" + v;
         document.getElementById('pet-img').src = "cat.png?v=" + v;
     };
 
@@ -150,12 +153,15 @@
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
-        const cleanImg = document.getElementById('img-clean');
-        // Меняем картинку, но сама кнопка остается на месте
+        const btnActive = document.getElementById('clean-btn');
+        const btnStatic = document.getElementById('clean-static');
+
         if (state.hasPoo) {
-            cleanImg.src = "clean_active.png";
+            btnActive.style.display = 'block';
+            btnStatic.style.display = 'none';
         } else {
-            cleanImg.src = "clean_disabled.png";
+            btnActive.style.display = 'none';
+            btnStatic.style.display = 'block';
         }
     }
 
@@ -171,11 +177,9 @@
     }
 
     function cleanPoo() {
-        if (!state.hasPoo) {
-            tg.HapticFeedback.notificationOccurred('warning');
-            return;
-        }
-        state.hasPoo = false; state.clean = 100;
+        if (!state.hasPoo) return;
+        state.hasPoo = false; 
+        state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
     }
