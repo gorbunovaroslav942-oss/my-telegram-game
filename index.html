@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tamagotchi 1256583707</title>
+    <title>Sibasi GAME</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #f4f4f7; }
         
         body, html { 
             height: 100%; margin: 0; padding: 0; overflow: hidden; 
-            background-color: var(--bg); font-family: sans-serif; 
+            background-color: var(--bg); font-family: 'Segoe UI', Roboto, sans-serif; 
         }
 
         .app-container { 
@@ -18,85 +18,94 @@
             height: 100vh; width: 100vw;
         }
 
+        /* Шапка */
         .header {
-            width: 100%; height: 50px; background: #fff;
+            width: 100%; height: 60px; background: #fff;
             display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-shrink: 0;
             z-index: 10;
         }
 
-        /* Центрируем всё содержимое по вертикали */
+        /* Игровое поле */
         .main { 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            justify-content: center; /* Собирает кота и кнопки в центре */
-            padding: 10px 0;
+            justify-content: center; /* Центрируем кота и кнопки вместе */
+            padding: 0 10px;
         }
 
-        /* Контейнер для кота с фиксированным отступом снизу */
+        /* Кот */
         .pet-stage { 
             width: 100%;
             display: flex;
             justify-content: center;
-            margin-bottom: 20px; /* Расстояние от кота до кнопок */
+            margin-bottom: 2vh; /* Отступ от кота до кнопок в % от высоты экрана */
         }
 
         .pet-img { 
-            max-height: 40vh; /* Кот занимает не больше 40% высоты экрана */
+            max-height: 35vh; /* Кот занимает треть экрана */
             max-width: 80%; 
             object-fit: contain;
             animation: float 3s ease-in-out infinite; 
         }
 
-        /* Область кнопок */
+        /* Кнопки управления */
         .action-area {
-            width: 90%; 
-            max-width: 360px;
+            width: 100%;
+            max-width: 340px;
             display: flex; 
             flex-direction: column; 
-            gap: 10px; /* Расстояние между рядами кнопок */
+            gap: 12px;
         }
 
         .top-row {
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 10px;
+            gap: 12px;
         }
 
         .btn-action {
             background: transparent; border: none; padding: 0;
             cursor: pointer; width: 100%; outline: none;
+            transition: transform 0.1s;
         }
 
         .btn-action img {
             width: 100%; height: auto; display: block;
         }
 
-        .btn-action:active { transform: scale(0.95); }
+        .btn-action:active { transform: scale(0.92); }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Нижнее меню */
+        /* Навигация */
         .navbar { 
-            width: 100%; height: 65px; background: #fff; display: flex; 
-            border-top: 1px solid #ddd; flex-shrink: 0;
+            width: 100%; height: 75px; background: #fff; display: flex; 
+            border-top: 1px solid #eee; flex-shrink: 0;
             padding-bottom: env(safe-area-inset-bottom);
         }
         .nav-item { 
             flex: 1; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
-            color: #8e8e93; font-size: 11px;
+            color: #8e8e93; font-size: 12px;
+            gap: 4px;
         }
+        .nav-item.active { color: #0088cc; font-weight: bold; }
+
+        /* Иконки для меню (простые текстовые, пока нет картинок) */
+        .nav-icon { font-size: 20px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header class="header">
-        <div style="font-weight:800; font-size: 18px;">🐾 <span id="money">100</span></div>
-        <div style="font-size: 13px; color: #555;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
+        <div style="font-weight:800; font-size: 22px;">🐾 <span id="money">100</span></div>
+        <div style="font-size: 14px; color: #444; font-weight: 500;">
+            🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%
+        </div>
     </header>
 
     <main class="main">
@@ -121,20 +130,31 @@
     </main>
 
     <nav class="navbar">
-        <div class="nav-item">🏠<br>Главная</div>
-        <div class="nav-item">🛒<br>Магазин</div>
-        <div class="nav-item">🏆<br>Топ</div>
+        <div class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span>Главная</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">🛒</span>
+            <span>Магазин</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">🏆</span>
+            <span>Топ</span>
+        </div>
     </nav>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
+    tg.headerColor = '#ffffff';
 
     let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
     window.onload = () => {
         const v = Date.now();
+        // Все пути исправлены на .png и добавлен сброс кэша
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
         document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
@@ -146,7 +166,9 @@
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
-        document.getElementById('img-clean').src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
+        
+        const cleanBtnImg = document.getElementById('img-clean');
+        cleanBtnImg.src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
     }
 
     function action(type) {
@@ -169,10 +191,10 @@
 
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
-        if (Math.random() > 0.85) state.hasPoo = true;
+        if (Math.random() > 0.8 && !state.hasPoo) state.hasPoo = true;
         if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
         updateUI();
-    }, 5000);
+    }, 4000);
 </script>
 </body>
 </html>
