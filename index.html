@@ -8,11 +8,12 @@
     <style>
         body { font-family: sans-serif; background: #f0f2f5; text-align: center; margin: 0; padding: 20px; }
         .stat-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .pet-image { font-size: 80px; margin: 20px 0; transition: transform 0.2s; }
+        .pet-container { margin: 20px 0; min-height: 150px; display: flex; justify-content: center; align-items: center; }
+        .pet-image { width: 150px; height: auto; transition: transform 0.2s; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         button { padding: 15px; border: none; border-radius: 10px; background: #0088cc; color: white; font-weight: bold; cursor: pointer; }
         button:disabled { background: #ccc; }
-        .poo { position: absolute; font-size: 30px; cursor: pointer; }
+        #clean-btn { background: #8b4513; }
     </style>
 </head>
 <body>
@@ -22,8 +23,9 @@
         <p>Сытость: <span id="hunger">100</span>% | Чистота: <span id="clean">100</span>%</p>
     </div>
 
-    <div id="pet" class="pet-image">🐱</div>
-    <div id="poo-container"></div>
+    <div class="pet-container">
+        <img id="pet-img" src="cat.png" alt="Кот" class="pet-image">
+    </div>
 
     <div class="btn-grid">
         <button onclick="action('feed')">Купить еду (10🐾)</button>
@@ -34,7 +36,7 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Развернуть на весь экран
+        tg.expand();
 
         let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
@@ -42,7 +44,10 @@
             document.getElementById('money').innerText = state.money;
             document.getElementById('hunger').innerText = state.hunger;
             document.getElementById('clean').innerText = state.clean;
-            document.getElementById('pet').innerText = state.hunger < 30 ? '😿' : '🐱';
+            
+            // Если кот голодный, он становится полупрозрачным (как вариант эффекта)
+            document.getElementById('pet-img').style.opacity = state.hunger < 30 ? '0.6' : '1';
+            
             document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
         }
 
@@ -66,7 +71,6 @@
             updateUI();
         }
 
-        // Цикл жизни: голод растет, какашки появляются
         setInterval(() => {
             state.hunger = Math.max(0, state.hunger - 2);
             if (Math.random() > 0.8) state.hasPoo = true;
@@ -74,6 +78,7 @@
             updateUI();
         }, 5000);
 
+        updateUI();
     </script>
 </body>
 </html>
