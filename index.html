@@ -6,14 +6,19 @@
     <title>Tamagotchi 1256583707</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #f4f4f7; --btn-height: 80px; } /* Здесь задаем высоту кнопок */
+        :root { --bg: #f4f4f7; }
         
         body, html { 
             height: 100%; margin: 0; padding: 0; overflow: hidden; 
             background-color: var(--bg); font-family: sans-serif; 
         }
 
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; }
+        .app-container { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            width: 100%; 
+        }
 
         .header {
             width: 100%; background: #fff; padding: 10px 0;
@@ -21,24 +26,44 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0;
         }
 
-        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; }
+        .main { 
+            flex: 1; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; }
         .active-tab { display: flex; }
 
         .pet-stage { 
-            flex: 1; display: flex; align-items: center; justify-content: center; 
-            min-height: 0; width: 100%; 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            min-height: 0; /* Важно для flex-контейнеров */
         }
-        .pet-img { max-height: 90%; max-width: 80%; object-fit: contain; animation: float 3s ease-in-out infinite; }
+
+        .pet-img { 
+            max-height: 80%; 
+            max-width: 70%; 
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite; 
+        }
+
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* СЕТКА */
+        /* СЕТКА КНОПОК */
         .action-area {
-            width: 90%; max-width: 400px;
-            margin: 0 auto 20px auto;
+            width: 90%; 
+            max-width: 360px; 
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 10px; 
+            padding: 15px 0;
             flex-shrink: 0;
         }
 
@@ -47,31 +72,40 @@
             border: none !important;
             padding: 0 !important;
             cursor: pointer;
-            height: var(--btn-height); /* Строгая высота */
-            width: 100%;
-            display: block;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
             transition: transform 0.1s ease;
+            width: 100%;
+            display: flex;
         }
 
         .btn-img:active { transform: scale(0.96); }
-
+        
         .btn-img img { 
             width: 100%; 
-            height: 100%; 
-            object-fit: fill; /* Заполняет всю ширину и высоту кнопки */
-            display: block;
-            border-radius: 12px;
+            height: auto; 
+            object-fit: cover;
+            display: block; 
         }
 
-        .full-width { grid-column: span 2; }
+        /* Кнопка уборки на всю ширину, но той же высоты */
+        .full-width {
+            grid-column: span 2;
+        }
 
         .navbar { 
-            width: 100%; height: 70px; background: #fff; display: flex; 
-            border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom);
+            width: 100%; 
+            height: 70px; 
+            background: #fff; 
+            display: flex; 
+            border-top: 1px solid #ddd; 
+            padding-bottom: env(safe-area-inset-bottom);
             flex-shrink: 0;
         }
+
         .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
         .active-nav { color: #0088cc !important; }
+        .nav-item span:first-child { font-size: 22px; }
     </style>
 </head>
 <body>
@@ -137,6 +171,7 @@
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
         document.getElementById(name).classList.add('active-tab');
         if(e) e.currentTarget.classList.add('active-nav');
+        tg.HapticFeedback.impactOccurred('light');
     }
 
     function updateUI() {
@@ -148,11 +183,11 @@
         const btnStatic = document.getElementById('clean-static');
 
         if (state.hasPoo) {
-            btnActive.style.display = 'block';
+            btnActive.style.display = 'flex';
             btnStatic.style.display = 'none';
         } else {
             btnActive.style.display = 'none';
-            btnStatic.style.display = 'block';
+            btnStatic.style.display = 'flex';
         }
     }
 
