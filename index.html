@@ -2,101 +2,78 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Telegram Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamagotchi TGC</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-
-        #score {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        #click-button {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(145deg, #3498db, #2980b9);
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5rem;
-            user-select: none;
-        }
-
-        #click-button:active {
-            transform: scale(0.95);
-        }
-
-        .user-info {
-            position: absolute;
-            top: 20px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
+        body { font-family: sans-serif; background: #f0f2f5; text-align: center; margin: 0; padding: 20px; }
+        .stat-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .pet-image { font-size: 80px; margin: 20px 0; transition: transform 0.2s; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 15px; border: none; border-radius: 10px; background: #0088cc; color: white; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        .poo { position: absolute; font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="user-info" id="user-display">Загрузка игрока...</div>
-    <div id="score">0</div>
-    <button id="click-button">🚀</button>
+    <div class="stat-card">
+        <h3>Баланс: <span id="money">100</span> 🐾</h3>
+        <p>Сытость: <span id="hunger">100</span>% | Чистота: <span id="clean">100</span>%</p>
+    </div>
+
+    <div id="pet" class="pet-image">🐱</div>
+    <div id="poo-container"></div>
+
+    <div class="btn-grid">
+        <button onclick="action('feed')">Купить еду (10🐾)</button>
+        <button onclick="action('wash')">Помыть (5🐾)</button>
+        <button onclick="action('play')">Играть (+🐾)</button>
+        <button onclick="cleanPoo()" id="clean-btn" style="display:none;">Убрать 💩</button>
+    </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        const button = document.getElementById('click-button');
-        const scoreDisplay = document.getElementById('score');
-        const userDisplay = document.getElementById('user-display');
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
 
-        let score = 0;
+        let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
-        // Инициализация Telegram Mini App
-        tg.expand(); // Разворачиваем на все окно
-        tg.ready();
-
-        // Вывод данных пользователя (ID: 1256583707 и имя)
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            userDisplay.innerText = `Игрок: ${user.first_name} (ID: ${user.id})`;
-        } else {
-            userDisplay.innerText = "Игра запущена вне Telegram";
+        function updateUI() {
+            document.getElementById('money').innerText = state.money;
+            document.getElementById('hunger').innerText = state.hunger;
+            document.getElementById('clean').innerText = state.clean;
+            document.getElementById('pet').innerText = state.hunger < 30 ? '😿' : '🐱';
+            document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
         }
 
-        // Логика клика
-        button.addEventListener('click', () => {
-            score++;
-            scoreDisplay.innerText = score;
-
-            // Легкая вибрация при клике (Haptic Feedback)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
+        function action(type) {
+            if (type === 'feed' && state.money >= 10) {
+                state.money -= 10;
+                state.hunger = Math.min(100, state.hunger + 20);
+            } else if (type === 'wash' && state.money >= 5) {
+                state.money -= 5;
+                state.clean = 100;
+            } else if (type === 'play') {
+                state.money += 15;
+                state.hunger -= 10;
             }
-        });
+            updateUI();
+        }
 
-        // Настраиваем главную кнопку Telegram внизу
-        tg.MainButton.setText("СОХРАНИТЬ РЕЗУЛЬТАТ");
-        tg.MainButton.show();
-        tg.MainButton.onClick(() => {
-            tg.showAlert(`Ваш итоговый счет: ${score}`);
-        });
+        function cleanPoo() {
+            state.hasPoo = false;
+            state.clean = 100;
+            updateUI();
+        }
+
+        // Цикл жизни: голод растет, какашки появляются
+        setInterval(() => {
+            state.hunger = Math.max(0, state.hunger - 2);
+            if (Math.random() > 0.8) state.hasPoo = true;
+            if (state.hasPoo) state.clean = Math.max(0, state.clean - 5);
+            updateUI();
+        }, 5000);
+
     </script>
 </body>
 </html>
