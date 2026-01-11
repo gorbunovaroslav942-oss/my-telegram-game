@@ -3,214 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tamagotchi 1256583707</title>
+    <title>Tamagotchi Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --tg-theme-bg: #f4f4f7;
+        :root { --tg-bg: #f4f4f7; }
+        
+        body, html { 
+            height: 100%; margin: 0; padding: 0; overflow: hidden; 
+            background-color: var(--tg-bg); font-family: sans-serif; 
         }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: var(--tg-theme-bg);
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+        .app { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
 
-        .app-wrapper {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100%;
-            align-items: center;
-        }
-
+        /* Шапка */
         .header {
-            width: 100%;
-            background: #fff;
-            padding: 12px 0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            z-index: 10;
+            width: 100%; background: #fff; padding: 12px 0;
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 10;
         }
 
-        .balance-box { font-weight: 800; font-size: 18px; }
-        .stats-row { font-size: 14px; color: #666; display: flex; gap: 15px; }
+        /* Контент */
+        .main { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-around; }
+        .active { display: flex; }
 
-        .main-content {
-            flex: 1;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+        /* Питомец */
+        .pet-wrap { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+        .pet-img { width: 75%; max-width: 280px; height: auto; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .tab-content {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-        }
-
-        .active-tab { display: flex; }
-
-        .pet-stage {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
-        }
-
-        .pet-image {
-            max-width: 280px;
-            width: 70%;
-            height: auto;
-            background: transparent !important;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        /* КНОПКИ-КАРТИНКИ */
+        /* КНОПКИ-КАРТИНКИ (Улучшенные стили) */
         .action-area {
-            width: 90%;
-            max-width: 340px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding-bottom: 30px;
-            margin: 0 auto;
+            width: 90%; max-width: 340px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding-bottom: 40px; margin: 0 auto;
         }
 
-        .img-btn {
-            background: none;
-            border: none;
-            padding: 0;
+        .custom-btn {
+            background: none !important; /* Убираем стандартный фон */
+            border: none !important;     /* Убираем рамки */
+            padding: 0 !important;      /* Убираем внутренние отступы */
             cursor: pointer;
             outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: block;
+            width: 100%;
             transition: transform 0.1s;
+            -webkit-tap-highlight-color: transparent; /* Убираем синий блик на смартфонах */
         }
 
-        .img-btn:active {
-            transform: scale(0.92); /* Эффект нажатия */
-        }
+        .custom-btn:active { transform: scale(0.9); }
 
-        .img-btn img {
-            width: 100%; /* Картинка заполнит выделенное место */
+        .custom-btn img {
+            width: 100%;
             height: auto;
             display: block;
-            background: transparent !important;
+            pointer-events: none; /* Чтобы клик шел на кнопку */
         }
 
-        /* Кнопка уборки (оставил системной, так как она появляется редко) */
-        .btn-orange {
-            grid-column: span 2;
-            background: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            padding: 12px;
-            font-weight: bold;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        /* Уборка (системная) */
+        .poo-btn {
+            grid-column: span 2; background: #ff9800; color: #fff;
+            border: none; border-radius: 15px; padding: 15px; font-weight: bold;
         }
 
-        .navbar {
-            width: 100%;
-            height: 75px;
-            background: #fff;
-            display: flex;
-            border-top: 1px solid #e0e0e0;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .nav-btn {
-            flex: 1;
-            border: none;
-            background: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #8e8e93;
-            font-size: 11px;
-            gap: 4px;
-        }
-
-        .nav-btn.active { color: #0088cc; }
-        .nav-btn span:first-child { font-size: 24px; }
-
-        .list-card {
-            background: #fff;
-            width: 85%;
-            padding: 15px;
-            border-radius: 15px;
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* Меню */
+        .nav { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
+        .nav-item.active-nav { color: #0088cc; }
+        .nav-item span:first-child { font-size: 24px; }
     </style>
 </head>
 <body>
 
-<div class="app-wrapper">
+<div class="app">
     <header class="header">
-        <div class="balance-box">🐾 <span id="money">100</span></div>
-        <div class="stats-row">
-            <div>🍖 <span id="hunger">100</span>%</div>
-            <div>✨ <span id="clean">100</span>%</div>
-        </div>
+        <div style="font-weight:800;">🐾 <span id="money">100</span></div>
+        <div style="color:#666; font-size:14px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
     </header>
 
-    <main class="main-content">
-        <div id="home" class="tab-content active-tab">
-            <div class="pet-stage">
-                <img id="pet-img" src="cat.png" alt="Кот" class="pet-image">
+    <main class="main">
+        <div id="home" class="tab active">
+            <div class="pet-wrap">
+                <img id="pet-img" src="cat.png" class="pet-img">
             </div>
             <div class="action-area">
-                <button class="img-btn" onclick="action('feed')">
+                <button class="custom-btn" onclick="action('feed')">
                     <img src="feed_btn.png" alt="Кормить">
                 </button>
-                <button class="img-btn" onclick="action('play')">
+                <button class="custom-btn" onclick="action('play')">
                     <img src="play_btn.png" alt="Играть">
                 </button>
-                
-                <button id="clean-btn" class="btn-orange" style="display:none;" onclick="cleanPoo()">
-                    🧹 Убрать за котом
-                </button>
+                <button id="clean-btn" class="poo-btn" style="display:none;" onclick="cleanPoo()">🧹 УБРАТЬ</button>
             </div>
         </div>
 
-        <div id="shop" class="tab-content">
-            <h2 style="margin: 10px 0;">Магазин</h2>
-            <div class="list-card"><span>🐟 Рыбка</span><button style="background:#0088cc; color:#fff; border:none; padding:8px 15px; border-radius:10px;" onclick="buy(50)">50</button></div>
+        <div id="shop" class="tab">
+            <h2>Магазин</h2>
+            <p>Скоро здесь будут товары...</p>
         </div>
 
-        <div id="top" class="tab-content">
-            <h2 style="margin: 10px 0;">Лидеры</h2>
-            <div class="list-card"><span>🥇 КотМагнат</span> <b>9999</b></div>
-            <div class="list-card"><span>🥉 Вы</span> <b class="my-money">100</b></div>
+        <div id="top" class="tab">
+            <h2>Топ игроков</h2>
+            <p>Вы: <span class="my-money">100</span> 🐾</p>
         </div>
     </main>
 
-    <nav class="navbar">
-        <button class="nav-btn active" onclick="switchTab(event, 'home')"><span>🏠</span><span>Главная</span></button>
-        <button class="nav-btn" onclick="switchTab(event, 'shop')"><span>🛒</span><span>Магазин</span></button>
-        <button class="nav-btn" onclick="switchTab(event, 'top')"><span>🏆</span><span>Топ</span></button>
+    <nav class="nav">
+        <button class="nav-item active-nav" onclick="tab(event, 'home')"><span>🏠</span><span>Главная</span></button>
+        <button class="nav-item" onclick="tab(event, 'shop')"><span>🛒</span><span>Магазин</span></button>
+        <button class="nav-item" onclick="tab(event, 'top')"><span>🏆</span><span>Топ</span></button>
     </nav>
 </div>
 
@@ -220,11 +121,11 @@
 
     let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
-    function switchTab(e, name) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(name).classList.add('active-tab');
-        e.currentTarget.classList.add('active');
+    function tab(e, name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active-nav'));
+        document.getElementById(name).classList.add('active');
+        e.currentTarget.classList.add('active-nav');
         tg.HapticFeedback.impactOccurred('light');
     }
 
@@ -238,12 +139,10 @@
 
     function action(type) {
         if (type === 'feed' && state.money >= 10) {
-            state.money -= 10;
-            state.hunger = Math.min(100, state.hunger + 25);
+            state.money -= 10; state.hunger = Math.min(100, state.hunger + 25);
             tg.HapticFeedback.notificationOccurred('success');
         } else if (type === 'play') {
-            state.money += 15;
-            state.hunger = Math.max(0, state.hunger - 15);
+            state.money += 15; state.hunger = Math.max(0, state.hunger - 15);
             tg.HapticFeedback.impactOccurred('medium');
         }
         updateUI();
@@ -253,16 +152,6 @@
         state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
-    }
-
-    function buy(p) {
-        if (state.money >= p) {
-            state.money -= p;
-            tg.HapticFeedback.notificationOccurred('success');
-            updateUI();
-        } else {
-            tg.HapticFeedback.notificationOccurred('error');
-        }
     }
 
     setInterval(() => {
