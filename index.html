@@ -20,22 +20,24 @@
                     <img id="pet-img" src="cat.png" class="pet-img">
                 </div>
                 
-                <div class="action-area">
-                    <button class="btn-img" onclick="action('feed')">
-                        <img id="img-feed" src="feed_btn.png">
-                    </button>
-                    <button class="btn-img" onclick="action('play')">
-                        <img id="img-play" src="play_btn.png">
-                    </button>
-                    
-                    <div id="clean-static" class="btn-img full-width">
-                        <img id="img-clean-static" src="clean_disabled.png">
-                    </div>
+<div class="action-area">
+    <div class="top-row">
+        <button class="btn-img" onclick="action('feed')">
+            <img id="img-feed" src="feed_btn.jpg">
+        </button>
+        <button class="btn-img" onclick="action('play')">
+            <img id="img-play" src="play_btn.jpg">
+        </button>
+    </div>
+    
+    <div id="clean-static" class="btn-img full-width">
+        <img id="img-clean-static" src="clean_disabled.png">
+    </div>
 
-                    <button id="clean-btn" class="btn-img full-width" onclick="cleanPoo()" style="display: none;">
-                        <img id="img-clean-active" src="clean_active.png">
-                    </button>
-                </div>
+    <button id="clean-btn" class="btn-img full-width" onclick="cleanPoo()" style="display: none;">
+        <img id="img-clean-active" src="clean_active.png">
+    </button>
+</div>
             </div>
 
             <div id="shop" class="tab"><h2>Магазин</h2></div>
@@ -52,3 +54,4 @@
     <script src="logic.js"></script>
 </body>
 </html>
+
