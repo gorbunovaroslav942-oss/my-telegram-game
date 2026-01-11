@@ -26,79 +26,51 @@
         .active-tab { display: flex; }
 
         .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { width: 75%; max-width: 300px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
+        .pet-img { width: 75%; max-width: 280px; height: auto; display: block; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Сетка кнопок */
+        /* ФИКСИРОВАННАЯ ОБЛАСТЬ КНОПОК */
         .action-area {
-            width: 95%; 
-            max-width: 500px; 
+            width: 90%; 
+            max-width: 400px; 
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 15px; 
-            padding-bottom: 25px; 
-            margin: 0 auto;
+            gap: 10px; 
+            padding-bottom: 20px;
+            margin-bottom: 10px; /* Запас перед набаром */
         }
 
-        .top-btns {
+        .top-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             width: 100%;
         }
 
-        .btn-custom {
+        /* Общий стиль кнопок */
+        .btn-img {
             background: transparent !important;
             border: none !important;
             padding: 0 !important;
             cursor: pointer;
-            width: 100%;
-            display: block;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
             transition: transform 0.1s ease;
-            transform: scale(1.15); 
-            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn-custom:active { transform: scale(1.05); }
+        .btn-img:active { transform: scale(0.95); }
+        .btn-img img { width: 100%; height: auto; display: block; }
 
-        .btn-custom img { width: 100%; height: auto; display: block; }
-
-        /* ОГРОМНАЯ СТАТИЧНАЯ КНОПКА УБОРКИ */
-        .clean-btn-static {
+        /* Кнопка УБРАТЬ всегда внизу и большая */
+        .clean-wrap {
             width: 100%;
-            padding: 22px; /* Увеличенная высота */
-            border: none;
-            border-radius: 20px;
-            font-size: 18px;
-            font-weight: 900;
-            text-transform: uppercase;
-            transition: 0.3s;
-            cursor: pointer;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            justify-content: center;
         }
 
-        /* Когда есть что убирать */
-        .clean-active {
-            background: #ff9800;
-            color: #fff;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Когда чисто */
-        .clean-disabled {
-            background: #d1d1d6;
-            color: #8e8e93;
-            cursor: default;
-            box-shadow: none;
-            transform: translateY(2px);
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        .clean-btn-custom {
+            width: 100%;
+            transform: scale(1.1); /* Делаем её чуть массивнее */
         }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
@@ -120,21 +92,25 @@
             <div class="pet-stage">
                 <img id="pet-img" src="cat.png" class="pet-img">
             </div>
+            
             <div class="action-area">
-                <div class="top-btns">
-                    <button class="btn-custom" onclick="action('feed')">
-                        <img id="img-feed" src="feed_btn.png" alt=" ">
+                <div class="top-row">
+                    <button class="btn-img" onclick="action('feed')">
+                        <img id="img-feed" src="feed_btn.png">
                     </button>
-                    <button class="btn-custom" onclick="action('play')">
-                        <img id="img-play" src="play_btn.png" alt=" ">
+                    <button class="btn-img" onclick="action('play')">
+                        <img id="img-play" src="play_btn.png">
                     </button>
                 </div>
                 
-                <button id="clean-btn" class="clean-btn-static clean-disabled" onclick="cleanPoo()">
-                    Нечего убирать!
-                </button>
+                <div class="clean-wrap">
+                    <button id="clean-btn" class="btn-img clean-btn-custom" onclick="cleanPoo()">
+                        <img id="img-clean" src="clean_disabled.png">
+                    </button>
+                </div>
             </div>
         </div>
+
         <div id="shop" class="tab"><h2>Магазин</h2></div>
         <div id="top" class="tab"><h2>Топ игроков</h2></div>
     </main>
@@ -150,10 +126,12 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
+    // Кеш-брейкер для всех картинок
     window.onload = () => {
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
+        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
         document.getElementById('pet-img').src = "cat.png?v=" + v;
     };
 
@@ -172,13 +150,12 @@
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
-        const cleanBtn = document.getElementById('clean-btn');
+        const cleanImg = document.getElementById('img-clean');
+        // Меняем картинку, но сама кнопка остается на месте
         if (state.hasPoo) {
-            cleanBtn.innerText = "🧹 УБРАТЬ ГРЯЗЬ!";
-            cleanBtn.className = "clean-btn-static clean-active";
+            cleanImg.src = "clean_active.png";
         } else {
-            cleanBtn.innerText = "Нечего убирать!";
-            cleanBtn.className = "clean-btn-static clean-disabled";
+            cleanImg.src = "clean_disabled.png";
         }
     }
 
@@ -194,7 +171,10 @@
     }
 
     function cleanPoo() {
-        if (!state.hasPoo) return;
+        if (!state.hasPoo) {
+            tg.HapticFeedback.notificationOccurred('warning');
+            return;
+        }
         state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
@@ -202,7 +182,7 @@
 
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
-        if (Math.random() > 0.90) state.hasPoo = true; // Шанс появления какашек
+        if (Math.random() > 0.90) state.hasPoo = true;
         if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
         updateUI();
     }, 5000);
