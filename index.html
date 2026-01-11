@@ -11,95 +11,110 @@
         body, html { 
             height: 100%; margin: 0; padding: 0; overflow: hidden; 
             background-color: var(--bg); font-family: sans-serif; 
+            display: flex; flex-direction: column;
         }
 
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
+        .app-container { 
+            display: flex; flex-direction: column; 
+            height: 100vh; width: 100vw; 
+        }
 
+        /* Шапка фиксированной высоты */
         .header {
-            width: 100%; background: #fff; padding: 12px 0;
+            height: 50px; background: #fff;
             display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-shrink: 0;
         }
 
-        .main { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0; }
-        
-        .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { max-height: 80%; max-width: 80%; width: auto; height: auto; display: block; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .main { 
+            flex: 1; display: flex; flex-direction: column; 
+            justify-content: space-between; align-items: center; 
+            padding: 10px 0; min-height: 0; 
+        }
 
-        /* ОБЛАСТЬ КНОПОК */
+        /* Кот подстраивается под свободное место */
+        .pet-stage { 
+            flex: 1; display: flex; align-items: center; justify-content: center; 
+            width: 100%; min-height: 0;
+        }
+        .pet-img { 
+            max-height: 100%; max-width: 70%; 
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite; 
+        }
+
+        /* Область кнопок - ограничиваем высоту, чтобы не вылетало */
         .action-area {
-            width: 90%; 
-            max-width: 360px; 
-            display: flex;
-            flex-direction: column;
-            gap: 12px; 
-            padding-bottom: 20px;
+            width: 90%; max-width: 320px;
+            display: flex; flex-direction: column; gap: 8px;
+            flex-shrink: 0; margin-bottom: 5px;
         }
 
-        /* Верхний ряд (Кормить и Играть) */
         .top-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
 
         .btn-action {
-            background: transparent;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s ease;
+            background: transparent; border: none; padding: 0;
+            cursor: pointer; width: 100%; outline: none;
         }
 
+        /* Кнопки теперь имеют фиксированную высоту, картинка внутри не растягивается */
         .btn-action img {
-            width: 100%;
-            height: auto;
-            display: block;
+            width: 100%; height: 60px; /* Фиксируем высоту верхних кнопок */
+            object-fit: contain; display: block;
         }
-
-        /* Нижняя кнопка (Убрать) - ДЛИННАЯ */
-        .bottom-row { width: 100%; }
 
         .btn-full img {
-            width: 100%; 
-            height: auto;
-            display: block;
+            width: 100%; height: 70px; /* Фиксируем высоту нижней кнопки */
+            object-fit: contain;
         }
 
-        .btn-action:active { transform: scale(0.96); }
+        .btn-action:active { transform: scale(0.95); }
 
-        /* Нижнее меню */
-        .navbar { width: 100%; height: 70px; background: #fff; display: flex; border-top: 1px solid #ddd; flex-shrink: 0; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* Нижнее меню фиксированной высоты */
+        .navbar { 
+            height: 65px; background: #fff; display: flex; 
+            border-top: 1px solid #ddd; flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-item { 
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            color: #8e8e93; font-size: 10px;
+        }
         .active-nav { color: #0088cc; font-weight: bold; }
+        
+        .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; }
+        .active-tab { display: flex; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header class="header">
-        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
-        <div style="color:#666;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
+        <div style="font-weight:800;">🐾 <span id="money">100</span></div>
+        <div style="font-size:12px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
     </header>
 
     <main class="main">
-        <div class="pet-stage">
-            <img id="pet-img" src="cat.png" class="pet-img">
-        </div>
-        
-        <div class="action-area">
-            <div class="top-row">
-                <button class="btn-action" onclick="action('feed')">
-                    <img id="img-feed" src="feed_btn.png">
-                </button>
-                <button class="btn-action" onclick="action('play')">
-                    <img id="img-play" src="play_btn.png">
-                </button>
+        <div id="home" class="tab active-tab">
+            <div class="pet-stage">
+                <img id="pet-img" src="cat.png" class="pet-img">
             </div>
             
-            <div class="bottom-row">
+            <div class="action-area">
+                <div class="top-row">
+                    <button class="btn-action" onclick="action('feed')">
+                        <img id="img-feed" src="feed_btn.png">
+                    </button>
+                    <button class="btn-action" onclick="action('play')">
+                        <img id="img-play" src="play_btn.png">
+                    </button>
+                </div>
+                
                 <button id="clean-btn" class="btn-action btn-full" onclick="cleanPoo()">
                     <img id="img-clean" src="clean_disabled.png">
                 </button>
@@ -117,13 +132,12 @@
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
+    tg.enableClosingConfirmation();
 
     let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
-    // Скрипт загрузки картинок с принудительным обновлением кэша
     window.onload = () => {
         const v = Date.now();
-        // Везде теперь .png
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
         document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
@@ -135,10 +149,7 @@
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
-        
-        const cleanImg = document.getElementById('img-clean');
-        // Логика смены картинки уборки
-        cleanImg.src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
+        document.getElementById('img-clean').src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
     }
 
     function action(type) {
