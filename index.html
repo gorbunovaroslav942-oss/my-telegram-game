@@ -7,26 +7,14 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #f4f4f7; }
-        
-        body, html { 
-            height: 100%; margin: 0; padding: 0; overflow: hidden; 
-            background-color: var(--bg); font-family: sans-serif; 
-        }
-
+        body, html { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg); font-family: sans-serif; }
         .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
-
-        .header {
-            width: 100%; background: #fff; padding: 12px 0;
-            display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100;
-        }
-
+        .header { width: 100%; background: #fff; padding: 12px 0; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100; }
         .main { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .tab { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-around; }
         .active-tab { display: flex; }
-
         .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { width: 70%; max-width: 280px; height: auto; display: block; background: transparent !important; animation: float 3s ease-in-out infinite; }
+        .pet-img { width: 60%; max-width: 250px; height: auto; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         /* ОБЛАСТЬ КНОПОК */
@@ -35,37 +23,42 @@
             max-width: 400px; 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            padding-bottom: 20px; 
-            margin: 0 auto;
+            gap: 15px; 
+            padding: 20px;
         }
 
-        /* Стиль для всех кнопок-картинок */
-        .btn-img-wrapper {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            outline: none !important;
+        .btn-wrapper {
+            background: #eee; /* Фон на случай, если картинка не прогрузится */
+            border: none;
+            padding: 0;
             cursor: pointer;
             width: 100%;
-            display: block;
+            border-radius: 15px;
+            overflow: hidden;
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.1s ease;
+            position: relative;
+            min-height: 60px; /* Чтобы кнопка не была невидимой */
         }
 
-        .btn-img-wrapper:active { transform: scale(0.95); }
-
-        .btn-img-wrapper img {
+        .btn-wrapper img {
             width: 100%;
             height: auto;
             display: block;
         }
 
-        /* Кнопка УБОРКИ (на всю ширину) */
+        /* Текст внутри кнопки, если нет картинки */
+        .btn-wrapper::after {
+            content: attr(data-label);
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            color: #666;
+            z-index: -1; /* Текст ПОД картинкой */
+        }
+
         .clean-btn-static {
             grid-column: span 2;
-            margin-top: 5px;
         }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
@@ -85,18 +78,17 @@
     <main class="main">
         <div id="home" class="tab active-tab">
             <div class="pet-stage">
-                <img id="pet-img" src="cat.png" class="pet-img">
+                <img id="pet-img" src="cat.png" class="pet-img" alt="Кот">
             </div>
             <div class="action-area">
-                <button class="btn-img-wrapper" onclick="action('feed')">
-                    <img id="img-feed" src="feed_btn.png" alt="Кормить">
+                <button class="btn-wrapper" data-label="Кормить" onclick="action('feed')">
+                    <img id="img-feed" src="feed_btn.png">
                 </button>
-                <button class="btn-img-wrapper" onclick="action('play')">
-                    <img id="img-play" src="play_btn.png" alt="Играть">
+                <button class="btn-wrapper" data-label="Играть" onclick="action('play')">
+                    <img id="img-play" src="play_btn.png">
                 </button>
-                
-                <button id="clean-btn" class="btn-img-wrapper clean-btn-static" onclick="cleanPoo()">
-                    <img id="img-clean" src="clean_disabled.png" alt="Уборка">
+                <button id="clean-btn" class="btn-wrapper clean-btn-static" data-label="Уборка" onclick="cleanPoo()">
+                    <img id="img-clean" src="clean_disabled.png">
                 </button>
             </div>
         </div>
@@ -115,14 +107,14 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Обновление путей к картинкам с защитой от кэша
-    window.onload = () => {
+    // Функция для принудительного обновления картинок (обход кэша)
+    function reloadImages() {
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
-        document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
         document.getElementById('pet-img').src = "cat.png?v=" + v;
-    };
+        updateCleanImage();
+    }
 
     let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
@@ -134,18 +126,17 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
+    function updateCleanImage() {
+        const cleanImg = document.getElementById('img-clean');
+        const v = Date.now();
+        cleanImg.src = state.hasPoo ? ("clean_active.png?v=" + v) : ("clean_disabled.png?v=" + v);
+    }
+
     function updateUI() {
         document.getElementById('money').innerText = state.money;
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
-        
-        // Переключение картинок кнопки уборки
-        const cleanImg = document.getElementById('img-clean');
-        if (state.hasPoo) {
-            cleanImg.src = "clean_active.png";
-        } else {
-            cleanImg.src = "clean_disabled.png";
-        }
+        updateCleanImage();
     }
 
     function action(type) {
@@ -168,11 +159,11 @@
 
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
-        if (Math.random() > 0.95) state.hasPoo = true;
-        if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
+        if (Math.random() > 0.90) state.hasPoo = true; 
         updateUI();
     }, 5000);
 
+    window.onload = reloadImages;
     updateUI();
 </script>
 </body>
