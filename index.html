@@ -8,50 +8,57 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="app-container">
-        <header class="header">
-            <div class="stat-item">🐾 <span id="money">100</span></div>
-            <div class="stat-details">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
-        </header>
 
-        <main class="main">
-            <div id="home" class="tab active-tab">
-                <div class="pet-stage">
-                    <img id="pet-img" src="cat.png" class="pet-img">
+<div class="app-container">
+    <header class="header">
+        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
+        <div style="color:#666; font-size:14px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
+    </header>
+
+    <main class="main">
+        <div id="home" class="tab active-tab">
+            <div class="pet-stage">
+                <img id="pet-img" src="cat.png" class="pet-img">
+            </div>
+            
+            <div class="action-area">
+                <div class="top-row">
+                    <button class="btn-img" onclick="action('feed')">
+                        <img id="img-feed" src="feed_btn.png">
+                    </button>
+                    <button class="btn-img" onclick="action('play')">
+                        <img id="img-play" src="play_btn.png">
+                    </button>
                 </div>
                 
-<div class="action-area">
-    <div class="top-row">
-        <button class="btn-img" onclick="action('feed')">
-            <img id="img-feed" src="feed_btn.jpg">
-        </button>
-        <button class="btn-img" onclick="action('play')">
-            <img id="img-play" src="play_btn.jpg">
-        </button>
-    </div>
-    
-    <div id="clean-static" class="btn-img full-width">
-        <img id="img-clean-static" src="clean_disabled.png">
-    </div>
+                <div id="clean-static" class="btn-img full-width">
+                    <img id="img-clean-static" src="clean_disabled.png">
+                </div>
 
-    <button id="clean-btn" class="btn-img full-width" onclick="cleanPoo()" style="display: none;">
-        <img id="img-clean-active" src="clean_active.png">
-    </button>
-</div>
+                <button id="clean-btn" class="btn-img full-width" onclick="cleanPoo()" style="display: none;">
+                    <img id="img-clean-active" src="clean_active.png">
+                </button>
             </div>
+        </div>
 
-            <div id="shop" class="tab"><h2>Магазин</h2></div>
-            <div id="top" class="tab"><h2>Топ игроков</h2></div>
-        </main>
+        <div id="shop" class="tab"><h2>Магазин</h2></div>
+        <div id="top" class="tab"><h2>Топ игроков</h2></div>
+    </main>
 
-        <nav class="navbar">
-            <button class="nav-item active-nav" onclick="switchTab(event, 'home')"><span>🏠</span><span>Главная</span></button>
-            <button class="nav-item" onclick="switchTab(event, 'shop')"><span>🛒</span><span>Магазин</span></button>
-            <button class="nav-item" onclick="switchTab(event, 'top')"><span>🏆</span><span>Топ</span></button>
-        </nav>
-    </div>
+    <nav class="navbar">
+        <button class="nav-item active-nav" onclick="switchTab(event, 'home')">
+            <span>🏠</span><span>Главная</span>
+        </button>
+        <button class="nav-item" onclick="switchTab(event, 'shop')">
+            <span>🛒</span><span>Магазин</span>
+        </button>
+        <button class="nav-item" onclick="switchTab(event, 'top')">
+            <span>🏆</span><span>Топ</span>
+        </button>
+    </nav>
+</div>
 
-    <script src="logic.js"></script>
+<script src="logic.js"></script>
+
 </body>
 </html>
-
