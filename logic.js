@@ -37,11 +37,11 @@ function updateUI() {
     const btnStatic = document.getElementById('clean-static');
 
     if (state.hasPoo) {
-        btnActive.style.display = 'flex'; // Используем flex для центрирования
+        btnActive.style.display = 'block'; // Используем flex для центрирования
         btnStatic.style.display = 'none';
     } else {
         btnActive.style.display = 'none';
-        btnStatic.style.display = 'flex'; // Используем flex для центрирования
+        btnStatic.style.display = 'block'; // Используем flex для центрирования
     }
 }
 
@@ -72,3 +72,4 @@ setInterval(() => {
     if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
     updateUI();
 }, 5000);
+
