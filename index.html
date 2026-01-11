@@ -6,104 +6,79 @@
     <title>Tamagotchi 1256583707</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #f4f4f7; }
-        body, html { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg); font-family: sans-serif; }
+        body { margin: 0; padding: 0; background: #f4f4f7; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; }
+        /* Верхняя панель */
+        .header { height: 50px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-bottom: 1px solid #ddd; flex-shrink: 0; }
+        
+        /* Зона с котом */
+        .pet-zone { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .pet-img { width: 180px; height: auto; }
 
-        /* Фиксированный верх */
-        .header {
-            height: 60px; background: #fff; display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0;
+        /* ЗОНА КНОПОК - теперь максимально простая */
+        .controls { width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 85px; flex-shrink: 0; }
+        
+        .row { display: flex; width: 90%; gap: 10px; margin-bottom: 10px; }
+
+        .btn { 
+            flex: 1; height: 70px; border: none; border-radius: 12px; 
+            background: #e0e0e0; /* Серый фон если картинка не загрузится */
+            cursor: pointer; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #555;
         }
 
-        /* Центр с котом - растягивается */
-        .main-content { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .pet-img { width: 50%; max-width: 200px; height: auto; animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .btn img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; }
 
-        /* БЛОК КНОПОК - ПРИЖАТ К НИЗУ */
-        .controls-area {
-            flex-shrink: 0;
-            width: 100%;
-            padding: 10px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: transparent;
-            margin-bottom: 75px; /* Место для навбара */
+        /* Кнопка УБРАТЬ - Статичная и широкая */
+        .btn-clean { 
+            width: 90%; height: 70px; border: none; border-radius: 12px; 
+            background: #d1d1d6; position: relative; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
+        
+        .btn-clean img { width: 100%; height: 100%; object-fit: contain; }
 
-        .button-grid {
-            width: 90%;
-            max-width: 360px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .btn-img {
-            background: transparent; border: none; padding: 0; cursor: pointer; width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn-img img { width: 100%; height: auto; display: block; border-radius: 10px; }
-
-        /* Кнопка Уборки на всю ширину */
-        .clean-btn-full {
-            grid-column: span 2;
-            margin-top: 5px;
-            min-height: 50px;
-            background: #eee; /* Заглушка если нет фото */
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        /* Фиксированное меню */
-        .navbar {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
-            background: #fff; display: flex; border-top: 1px solid #ddd;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
+        /* Нижнее меню */
+        .navbar { position: fixed; bottom: 0; width: 100%; height: 70px; background: #fff; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: #8e8e93; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <b>🐾 <span id="money">100</span></b>
-        <span style="font-size: 14px; color: #666;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</span>
-    </div>
-
-    <div class="main-content">
-        <img id="pet-img" src="cat.png" class="pet-img" alt="Кот">
-    </div>
-
-    <div class="controls-area">
-        <div class="button-grid">
-            <button class="btn-img" onclick="action('feed')">
-                <img id="img-feed" src="feed_btn.png" alt="ЕДА">
-            </button>
-            <button class="btn-img" onclick="action('play')">
-                <img id="img-play" src="play_btn.png" alt="ИГРА">
-            </button>
-            
-            <button id="clean-btn" class="btn-img clean-btn-full" onclick="cleanPoo()">
-                <img id="img-clean" src="clean_disabled.png" alt="УБРАТЬ">
-            </button>
-        </div>
-    </div>
-
-    <nav class="navbar">
-        <button class="nav-item" style="color:#0088cc">🏠<br>Главная</button>
-        <button class="nav-item">🛒<br>Магазин</button>
-        <button class="nav-item">🏆<br>Топ</button>
-    </nav>
+<div class="header">
+    <b>🐾 <span id="money">100</span></b>
+    <span>🍖 <span id="hunger">100</span>%</span>
+    <span>✨ <span id="clean">100</span>%</span>
 </div>
+
+<div class="pet-zone">
+    <img id="pet-img" src="cat.png" class="pet-img" alt="Pet">
+</div>
+
+<div class="controls">
+    <div class="row">
+        <button class="btn" onclick="action('feed')">
+            <span>ЕДА</span>
+            <img id="img-feed" src="feed_btn.png">
+        </button>
+        <button class="btn" onclick="action('play')">
+            <span>ИГРА</span>
+            <img id="img-play" src="play_btn.png">
+        </button>
+    </div>
+    
+    <button id="clean-btn" class="btn-clean" onclick="cleanPoo()">
+        <span id="clean-text">ЧИСТО</span>
+        <img id="img-clean" src="clean_disabled.png">
+    </button>
+</div>
+
+<nav class="navbar">
+    <div class="nav-item" style="color:#0088cc">🏠<br>Главная</div>
+    <div class="nav-item">🛒<br>Магазин</div>
+    <div class="nav-item">🏆<br>Топ</div>
+</nav>
 
 <script>
     let tg = window.Telegram.WebApp;
@@ -117,9 +92,16 @@
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
         const cleanImg = document.getElementById('img-clean');
+        const cleanText = document.getElementById('clean-text');
         const v = Date.now();
-        // Меняем картинку
-        cleanImg.src = state.hasPoo ? "clean_active.png?v="+v : "clean_disabled.png?v="+v;
+
+        if (state.hasPoo) {
+            cleanImg.src = "clean_active.png?v=" + v;
+            cleanText.innerText = "УБРАТЬ!";
+        } else {
+            cleanImg.src = "clean_disabled.png?v=" + v;
+            cleanText.innerText = "ЧИСТО";
+        }
     }
 
     function action(type) {
@@ -140,20 +122,21 @@
         updateUI();
     }
 
+    // Принудительная загрузка картинок с кэш-брейкером
+    window.onload = () => {
+        const v = Date.now();
+        document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
+        document.getElementById('img-play').src = "play_btn.png?v=" + v;
+        document.getElementById('pet-img').src = "cat.png?v=" + v;
+        updateUI();
+    };
+
     setInterval(() => {
         state.hunger = Math.max(0, state.hunger - 1);
         if (Math.random() > 0.90) state.hasPoo = true;
         updateUI();
     }, 5000);
-
-    // Первичная подгрузка путей
-    window.onload = () => {
-        const v = Date.now();
-        document.getElementById('img-feed').src = "feed_btn.png?v="+v;
-        document.getElementById('img-play').src = "play_btn.png?v="+v;
-        document.getElementById('pet-img').src = "cat.png?v="+v;
-        updateUI();
-    };
 </script>
+
 </body>
 </html>
