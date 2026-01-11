@@ -10,7 +10,7 @@
         
         body, html { 
             height: 100%; margin: 0; padding: 0; overflow: hidden; 
-            background-color: var(--bg); font-family: 'Segoe UI', Roboto, sans-serif; 
+            background-color: var(--bg); font-family: 'Segoe UI', sans-serif; 
         }
 
         .app-container { 
@@ -18,7 +18,7 @@
             height: 100vh; width: 100vw;
         }
 
-        /* Шапка */
+        /* Шапка с монетами */
         .header {
             width: 100%; height: 60px; background: #fff;
             display: flex; justify-content: space-around; align-items: center;
@@ -26,44 +26,33 @@
             z-index: 10;
         }
 
-        /* Игровое поле */
+        /* Игровое пространство */
         .main { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; /* Центрируем кота и кнопки вместе */
-            padding: 0 10px;
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-between; 
+            padding: 20px 0; min-height: 0;
         }
 
-        /* Кот */
+        /* Кот — теперь всегда в центре */
         .pet-stage { 
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 2vh; /* Отступ от кота до кнопок в % от высоты экрана */
+            flex: 1; display: flex; align-items: center; justify-content: center; 
+            width: 100%; min-height: 0;
         }
-
         .pet-img { 
-            max-height: 35vh; /* Кот занимает треть экрана */
-            max-width: 80%; 
+            max-height: 90%; max-width: 85%; 
             object-fit: contain;
             animation: float 3s ease-in-out infinite; 
         }
 
-        /* Кнопки управления */
+        /* Контейнер кнопок — подстраивается под экран 9:16 */
         .action-area {
-            width: 100%;
-            max-width: 340px;
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px;
+            width: 90%; max-width: 360px;
+            display: flex; flex-direction: column; gap: 10px;
+            flex-shrink: 0; margin-bottom: 10px;
         }
 
         .top-row {
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
 
         .btn-action {
@@ -76,36 +65,31 @@
             width: 100%; height: auto; display: block;
         }
 
-        .btn-action:active { transform: scale(0.92); }
+        .btn-action:active { transform: scale(0.95); }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Навигация */
+        /* Навигация (Магазин, Топ) */
         .navbar { 
-            width: 100%; height: 75px; background: #fff; display: flex; 
+            width: 100%; height: 70px; background: #fff; display: flex; 
             border-top: 1px solid #eee; flex-shrink: 0;
             padding-bottom: env(safe-area-inset-bottom);
         }
         .nav-item { 
             flex: 1; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
-            color: #8e8e93; font-size: 12px;
-            gap: 4px;
+            color: #8e8e93; font-size: 11px; gap: 3px;
         }
-        .nav-item.active { color: #0088cc; font-weight: bold; }
-
-        /* Иконки для меню (простые текстовые, пока нет картинок) */
-        .nav-icon { font-size: 20px; }
+        .nav-item b { font-size: 18px; }
+        .active { color: #0088cc; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header class="header">
-        <div style="font-weight:800; font-size: 22px;">🐾 <span id="money">100</span></div>
-        <div style="font-size: 14px; color: #444; font-weight: 500;">
-            🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%
-        </div>
+        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
+        <div style="font-size: 14px; font-weight: 600;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
     </header>
 
     <main class="main">
@@ -130,31 +114,22 @@
     </main>
 
     <nav class="navbar">
-        <div class="nav-item active">
-            <span class="nav-icon">🏠</span>
-            <span>Главная</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">🛒</span>
-            <span>Магазин</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">🏆</span>
-            <span>Топ</span>
-        </div>
+        <div class="nav-item active"><b>🏠</b>Главная</div>
+        <div class="nav-item"><b>🛒</b>Магазин</div>
+        <div class="nav-item"><b>🏆</b>Топ</div>
     </nav>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
-    tg.headerColor = '#ffffff';
+    tg.ready();
 
     let state = { money: 100, hunger: 100, clean: 100, hasPoo: false };
 
+    // Обновление картинок при загрузке (сброс кэша)
     window.onload = () => {
         const v = Date.now();
-        // Все пути исправлены на .png и добавлен сброс кэша
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
         document.getElementById('img-play').src = "play_btn.png?v=" + v;
         document.getElementById('img-clean').src = "clean_disabled.png?v=" + v;
@@ -167,8 +142,9 @@
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
-        const cleanBtnImg = document.getElementById('img-clean');
-        cleanBtnImg.src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
+        // Смена картинки кнопки уборки
+        const cleanBtn = document.getElementById('img-clean');
+        cleanBtn.src = state.hasPoo ? "clean_active.png" : "clean_disabled.png";
     }
 
     function action(type) {
@@ -189,12 +165,15 @@
         updateUI();
     }
 
+    // Игровой цикл
     setInterval(() => {
-        state.hunger = Math.max(0, state.hunger - 1);
-        if (Math.random() > 0.8 && !state.hasPoo) state.hasPoo = true;
-        if (state.hasPoo) state.clean = Math.max(0, state.clean - 2);
+        state.hunger = Math.max(0, state.hunger - 0.5);
+        if (Math.random() > 0.9 && !state.hasPoo) {
+            state.hasPoo = true;
+        }
+        if (state.hasPoo) state.clean = Math.max(0, state.clean - 1);
         updateUI();
-    }, 4000);
+    }, 5000);
 </script>
 </body>
 </html>
