@@ -26,49 +26,51 @@
         .active-tab { display: flex; }
 
         .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { width: 75%; max-width: 300px; height: auto; display: block; animation: float 3s ease-in-out infinite; }
+        .pet-img { width: 75%; max-width: 280px; height: auto; display: block; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* СЕТКА КНОПОК */
+        /* ФИКСИРОВАННАЯ ОБЛАСТЬ КНОПОК */
         .action-area {
-            width: 95%; 
-            max-width: 500px; 
+            width: 90%; 
+            max-width: 400px; 
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 10px; 
-            padding-bottom: 25px; 
-            margin: 0 auto;
+            padding-bottom: 20px;
+            margin-bottom: 10px; /* Запас перед набаром */
         }
 
-        .top-btns {
+        .top-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             width: 100%;
         }
 
-        /* Общий стиль для всех кнопок-картинок */
-        .img-btn-base {
+        /* Общий стиль кнопок */
+        .btn-img {
             background: transparent !important;
             border: none !important;
             padding: 0 !important;
             cursor: pointer;
             outline: none !important;
-            display: block;
             -webkit-tap-highlight-color: transparent;
             transition: transform 0.1s ease;
         }
 
-        .img-btn-base:active { transform: scale(0.95); }
+        .btn-img:active { transform: scale(0.95); }
+        .btn-img img { width: 100%; height: auto; display: block; }
 
-        .img-btn-base img { width: 100%; height: auto; display: block; }
+        /* Кнопка УБРАТЬ всегда внизу и большая */
+        .clean-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
 
-        /* Стиль для кнопки УБРАТЬ (делаем её самой большой) */
         .clean-btn-custom {
             width: 100%;
-            transform: scale(1.1); /* Увеличиваем её относительно других */
-            margin-top: 5px;
+            transform: scale(1.1); /* Делаем её чуть массивнее */
         }
 
         .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
@@ -90,21 +92,25 @@
             <div class="pet-stage">
                 <img id="pet-img" src="cat.png" class="pet-img">
             </div>
+            
             <div class="action-area">
-                <div class="top-btns">
-                    <button class="img-btn-base" onclick="action('feed')">
+                <div class="top-row">
+                    <button class="btn-img" onclick="action('feed')">
                         <img id="img-feed" src="feed_btn.png">
                     </button>
-                    <button class="img-btn-base" onclick="action('play')">
+                    <button class="btn-img" onclick="action('play')">
                         <img id="img-play" src="play_btn.png">
                     </button>
                 </div>
                 
-                <button id="clean-btn" class="img-btn-base clean-btn-custom" onclick="cleanPoo()">
-                    <img id="img-clean" src="clean_disabled.png">
-                </button>
+                <div class="clean-wrap">
+                    <button id="clean-btn" class="btn-img clean-btn-custom" onclick="cleanPoo()">
+                        <img id="img-clean" src="clean_disabled.png">
+                    </button>
+                </div>
             </div>
         </div>
+
         <div id="shop" class="tab"><h2>Магазин</h2></div>
         <div id="top" class="tab"><h2>Топ игроков</h2></div>
     </main>
@@ -120,6 +126,7 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
+    // Кеш-брейкер для всех картинок
     window.onload = () => {
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
@@ -144,6 +151,7 @@
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
         const cleanImg = document.getElementById('img-clean');
+        // Меняем картинку, но сама кнопка остается на месте
         if (state.hasPoo) {
             cleanImg.src = "clean_active.png";
         } else {
@@ -163,7 +171,10 @@
     }
 
     function cleanPoo() {
-        if (!state.hasPoo) return;
+        if (!state.hasPoo) {
+            tg.HapticFeedback.notificationOccurred('warning');
+            return;
+        }
         state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
