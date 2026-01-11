@@ -35,16 +35,22 @@ body, html {
     50% { transform: translateY(-15px); } 
 }
 
-/* СЕТКА КНОПОК - подбираем пропорции как на скриншоте */
+/* СЕТКА КНОПОК */
 .action-area {
     width: 90%; 
-    max-width: 380px;
-    margin: 0 auto 25px auto;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.top-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    flex-shrink: 0;
-    align-items: center;
+    gap: 10px;
+    width: 100%;
 }
 
 .btn-img {
@@ -59,18 +65,16 @@ body, html {
 
 .btn-img:active { transform: scale(0.96); }
 
-/* Картинки внутри кнопок теперь просто занимают всю ширину, 
-   а высота подстраивается автоматически по картинке */
+/* Картинки теперь сохраняют свои родные пропорции */
 .btn-img img { 
     width: 100%; 
     height: auto; 
     display: block;
 }
 
-/* Нижняя кнопка «Убрать» */
+/* Кнопка уборки */
 .full-width { 
-    grid-column: span 2; 
-    margin-top: 5px;
+    width: 100%;
 }
 
 .navbar { 
