@@ -8,7 +8,6 @@
     <style>
         :root {
             --tg-theme-bg: #f4f4f7;
-            --tg-theme-accent: #0088cc;
         }
 
         html, body {
@@ -25,10 +24,9 @@
             flex-direction: column;
             height: 100vh;
             width: 100%;
-            align-items: center; /* Центровка по горизонтали всего приложения */
+            align-items: center;
         }
 
-        /* Шапка */
         .header {
             width: 100%;
             background: #fff;
@@ -37,19 +35,18 @@
             justify-content: space-around;
             align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            box-sizing: border-box;
+            z-index: 10;
         }
 
         .balance-box { font-weight: 800; font-size: 18px; }
         .stats-row { font-size: 14px; color: #666; display: flex; gap: 15px; }
 
-        /* Контентная область */
         .main-content {
             flex: 1;
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Центровка содержимого вкладок */
+            align-items: center;
             justify-content: center;
         }
 
@@ -58,13 +55,12 @@
             width: 100%;
             height: 100%;
             flex-direction: column;
-            align-items: center; /* Центровка кота и кнопок */
-            justify-content: space-around; /* Равномерный отступ сверху и снизу */
+            align-items: center;
+            justify-content: space-around;
         }
 
         .active-tab { display: flex; }
 
-        /* Кот */
         .pet-stage {
             width: 100%;
             display: flex;
@@ -79,7 +75,6 @@
             height: auto;
             background: transparent !important;
             animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.1));
         }
 
         @keyframes float {
@@ -87,38 +82,52 @@
             50% { transform: translateY(-15px); }
         }
 
-        /* Кнопки действий */
+        /* КНОПКИ-КАРТИНКИ */
         .action-area {
             width: 90%;
             max-width: 340px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding-bottom: 30px; /* Отступ от нижнего меню */
+            gap: 15px;
+            padding-bottom: 30px;
             margin: 0 auto;
         }
 
-        .btn {
+        .img-btn {
+            background: none;
             border: none;
-            border-radius: 16px;
-            padding: 16px 5px;
-            font-size: 14px;
-            font-weight: bold;
+            padding: 0;
             cursor: pointer;
+            outline: none;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            gap: 5px;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+
+        .img-btn:active {
+            transform: scale(0.92); /* Эффект нажатия */
+        }
+
+        .img-btn img {
+            width: 100%; /* Картинка заполнит выделенное место */
+            height: auto;
+            display: block;
+            background: transparent !important;
+        }
+
+        /* Кнопка уборки (оставил системной, так как она появляется редко) */
+        .btn-orange {
+            grid-column: span 2;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 12px;
+            font-weight: bold;
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
 
-        .btn:active { transform: translateY(2px); box-shadow: none; }
-        .btn-blue { background: #0088cc; color: #fff; }
-        .btn-green { background: #4caf50; color: #fff; }
-        .btn-orange { background: #ff9800; color: #fff; grid-column: span 2; }
-
-        /* Нижнее меню */
         .navbar {
             width: 100%;
             height: 75px;
@@ -144,7 +153,6 @@
         .nav-btn.active { color: #0088cc; }
         .nav-btn span:first-child { font-size: 24px; }
 
-        /* Списки */
         .list-card {
             background: #fff;
             width: 85%;
@@ -174,28 +182,27 @@
                 <img id="pet-img" src="cat.png" alt="Кот" class="pet-image">
             </div>
             <div class="action-area">
-                <button class="btn btn-blue" onclick="action('feed')">
-                    <span>🍎</span><span>Кормить (10)</span>
+                <button class="img-btn" onclick="action('feed')">
+                    <img src="feed_btn.png" alt="Кормить">
                 </button>
-                <button class="btn btn-green" onclick="action('play')">
-                    <span>🎮</span><span>Играть (+15)</span>
+                <button class="img-btn" onclick="action('play')">
+                    <img src="play_btn.png" alt="Играть">
                 </button>
-                <button id="clean-btn" class="btn btn-orange" style="display:none;" onclick="cleanPoo()">
-                    <span>🧹</span><span>Убрать за котом</span>
+                
+                <button id="clean-btn" class="btn-orange" style="display:none;" onclick="cleanPoo()">
+                    🧹 Убрать за котом
                 </button>
             </div>
         </div>
 
         <div id="shop" class="tab-content">
             <h2 style="margin: 10px 0;">Магазин</h2>
-            <div class="list-card"><span>🐟 Рыбка</span><button class="btn btn-blue" style="padding: 8px 15px;" onclick="buy(50)">50</button></div>
-            <div class="list-card"><span>🧶 Клубок</span><button class="btn btn-blue" style="padding: 8px 15px;" onclick="buy(150)">150</button></div>
+            <div class="list-card"><span>🐟 Рыбка</span><button style="background:#0088cc; color:#fff; border:none; padding:8px 15px; border-radius:10px;" onclick="buy(50)">50</button></div>
         </div>
 
         <div id="top" class="tab-content">
             <h2 style="margin: 10px 0;">Лидеры</h2>
             <div class="list-card"><span>🥇 КотМагнат</span> <b>9999</b></div>
-            <div class="list-card"><span>🥈 Барон</span> <b>5400</b></div>
             <div class="list-card"><span>🥉 Вы</span> <b class="my-money">100</b></div>
         </div>
     </main>
@@ -226,7 +233,7 @@
         document.querySelectorAll('.my-money').forEach(m => m.innerText = state.money);
         document.getElementById('hunger').innerText = Math.floor(state.hunger);
         document.getElementById('clean').innerText = Math.floor(state.clean);
-        document.getElementById('clean-btn').style.display = state.hasPoo ? 'flex' : 'none';
+        document.getElementById('clean-btn').style.display = state.hasPoo ? 'block' : 'none';
     }
 
     function action(type) {
