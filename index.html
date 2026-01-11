@@ -16,7 +16,7 @@
         .app-container { display: flex; flex-direction: column; height: 100vh; width: 100%; align-items: center; }
 
         .header {
-            width: 100%; background: #fff; padding: 12px 0;
+            width: 100%; background: #fff; padding: 10px 0;
             display: flex; justify-content: space-around; align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 100;
         }
@@ -26,28 +26,26 @@
         .active-tab { display: flex; }
 
         .pet-stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .pet-img { width: 75%; max-width: 280px; height: auto; display: block; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .pet-img { width: 65%; max-width: 250px; height: auto; display: block; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* ФИКСИРОВАННАЯ ОБЛАСТЬ КНОПОК */
+        /* ОГРАНИЧЕННАЯ ОБЛАСТЬ КНОПОК */
         .action-area {
-            width: 90%; 
-            max-width: 400px; 
+            width: 85%; /* Уменьшили общую ширину контейнера */
+            max-width: 320px; 
             display: flex;
             flex-direction: column;
-            gap: 10px; 
+            gap: 12px; 
             padding-bottom: 20px;
-            margin-bottom: 10px; /* Запас перед набаром */
         }
 
         .top-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
         }
 
-        /* Общий стиль кнопок */
         .btn-img {
             background: transparent !important;
             border: none !important;
@@ -59,9 +57,9 @@
         }
 
         .btn-img:active { transform: scale(0.95); }
-        .btn-img img { width: 100%; height: auto; display: block; }
+        .btn-img img { width: 100%; height: auto; display: block; border-radius: 10px; }
 
-        /* Кнопка УБРАТЬ всегда внизу и большая */
+        /* Кнопка УБРАТЬ - теперь фиксированного размера */
         .clean-wrap {
             width: 100%;
             display: flex;
@@ -69,22 +67,21 @@
         }
 
         .clean-btn-custom {
-            width: 100%;
-            transform: scale(1.1); /* Делаем её чуть массивнее */
+            width: 100%; /* Теперь она равна ширине двух кнопок выше */
         }
 
-        .navbar { width: 100%; height: 75px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
+        .navbar { width: 100%; height: 70px; background: #fff; display: flex; border-top: 1px solid #ddd; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8e8e93; font-size: 11px; }
         .active-nav { color: #0088cc !important; }
-        .nav-item span:first-child { font-size: 24px; }
+        .nav-item span:first-child { font-size: 22px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <header class="header">
-        <div style="font-weight:800; font-size: 20px;">🐾 <span id="money">100</span></div>
-        <div style="color:#666; font-size:14px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
+        <div style="font-weight:800; font-size: 18px;">🐾 <span id="money">100</span></div>
+        <div style="color:#666; font-size:13px;">🍖 <span id="hunger">100</span>% | ✨ <span id="clean">100</span>%</div>
     </header>
 
     <main class="main">
@@ -126,7 +123,6 @@
     let tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Кеш-брейкер для всех картинок
     window.onload = () => {
         const v = Date.now();
         document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
@@ -151,7 +147,6 @@
         document.getElementById('clean').innerText = Math.floor(state.clean);
         
         const cleanImg = document.getElementById('img-clean');
-        // Меняем картинку, но сама кнопка остается на месте
         if (state.hasPoo) {
             cleanImg.src = "clean_active.png";
         } else {
@@ -171,10 +166,7 @@
     }
 
     function cleanPoo() {
-        if (!state.hasPoo) {
-            tg.HapticFeedback.notificationOccurred('warning');
-            return;
-        }
+        if (!state.hasPoo) return;
         state.hasPoo = false; state.clean = 100;
         tg.HapticFeedback.notificationOccurred('success');
         updateUI();
