@@ -105,12 +105,11 @@ async function loadData() {
                 // Кот теряет 1% каждые 10 минут (600 секунд)
                 const hungerLost = Math.floor(secondsPassed / 5); 
                 
-                if (hungerLost > 0) {
-                    state.hunger = Math.max(0, state.hunger - hungerLost);
-                    tg.showScanQrPopup({text: `Пока тебя не было, котик проголодался на ${hungerLost}%` });
-                    // Через 2 секунды закрываем попап (просто для уведомления)
-                    setTimeout(() => tg.closeScanQrPopup(), 2000);
-                }
+if (hungerLost > 0) {
+    state.hunger = Math.max(0, state.hunger - hungerLost);
+    // Используем красивое стандартное окно
+    tg.showAlert(`Пока тебя не было, котик проголодался на ${hungerLost}% 🍖`);
+}
             }
         } else {
             state = { money: 100, hunger: 100, name: userName };
@@ -198,5 +197,6 @@ window.onload = async () => {
 </script>
 </body>
 </html>
+
 
 
