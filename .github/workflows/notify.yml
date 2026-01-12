@@ -25,4 +25,5 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           FIREBASE_JSON: ${{ secrets.FIREBASE_JSON }}
+
         run: python bot_notify.py
