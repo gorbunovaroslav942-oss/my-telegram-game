@@ -9,7 +9,7 @@
     
     <title>Tamagotchi 1256583707</title>
     
-    <script src="https://telegram.org/js/telegram-web-app.js?v=3"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?v=4"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
@@ -28,12 +28,10 @@
         .btn-custom{background:none;border:none;padding:0;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;transition: all 0.3s ease;}
         .btn-custom img{width:100%;height:auto;display:block;border-radius:15px;}
         
-        /* Навигация */
         .navbar{width:100%;height:75px;background:#fff;display:flex;border-top:1px solid #ddd;padding-bottom:env(safe-area-inset-bottom);}
-        .nav-item{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8e8e93;font-size:11px;cursor:pointer;}
+        .nav-item{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8e8e93;font-size:11px;}
         .active-nav{color:#0088cc!important;font-weight:bold;}
         
-        /* Топ */
         #leaderboard-list { width: 100%; list-style: none; padding: 0; margin-top: 20px; }
         #leaderboard-list li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 8px; }
     </style>
@@ -72,7 +70,6 @@
 </div>
 
 <script>
-// ТВОЙ КОНФИГ FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAP_Rf44bvkeINAJWSuWz9DCgLqzmqG39k",
   authDomain: "tamagotchigame-2cc40.firebaseapp.com",
@@ -92,13 +89,14 @@ const userId = tg.initDataUnsafe?.user?.id || "1256583707";
 const userName = tg.initDataUnsafe?.user?.first_name || "Игрок";
 let state = { money: 100, hunger: 100 };
 
-// ФУНКЦИЯ ОБНОВЛЕНИЯ UI И КНОПОК
 function updateUI() {
     document.getElementById('money').innerText = state.money;
     document.getElementById('hunger').innerText = Math.floor(state.hunger);
     
-    // Мгновенная блокировка кнопки игры при 0 сытости
     const playBtn = document.getElementById('btn-play-parent');
+    const feedBtn = document.getElementById('btn-feed-parent');
+
+    // Блокировка игры (при 0%)
     if (Math.floor(state.hunger) <= 0) {
         playBtn.style.opacity = "0.4";
         playBtn.style.filter = "grayscale(1)";
@@ -106,9 +104,17 @@ function updateUI() {
         playBtn.style.opacity = "1";
         playBtn.style.filter = "none";
     }
+
+    // Блокировка кормления (при 100%)
+    if (Math.floor(state.hunger) >= 100) {
+        feedBtn.style.opacity = "0.4";
+        feedBtn.style.filter = "grayscale(1)";
+    } else {
+        feedBtn.style.opacity = "1";
+        feedBtn.style.filter = "none";
+    }
 }
 
-// ЗАГРУЗКА ДАННЫХ
 async function loadData() {
     try {
         const doc = await db.collection("users").doc(userId.toString()).get();
@@ -119,10 +125,9 @@ async function loadData() {
             await db.collection("users").doc(userId.toString()).set(state);
         }
         updateUI();
-    } catch (e) { console.error("Firebase load error:", e); }
+    } catch (e) { console.error(e); }
 }
 
-// СОХРАНЕНИЕ ДАННЫХ
 async function saveData() {
     try {
         await db.collection("users").doc(userId.toString()).set({
@@ -130,12 +135,17 @@ async function saveData() {
             name: userName,
             lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-    } catch (e) { console.error("Firebase save error:", e); }
+    } catch (e) { console.error(e); }
 }
 
-// ЛОГИКА ДЕЙСТВИЙ
 async function action(type) {
     if (type === 'feed') {
+        // Проверка: нельзя кормить, если уже 100%
+        if (Math.floor(state.hunger) >= 100) {
+            tg.HapticFeedback.notificationOccurred('error');
+            tg.showAlert("Кот уже сыт! 🐈");
+            return;
+        }
         if (state.money < 10) {
             tg.showAlert("Недостаточно монет! 🐾");
             return;
@@ -146,7 +156,6 @@ async function action(type) {
     } 
     
     else if (type === 'play') {
-        // ЖЕСТКАЯ ПРОВЕРКА
         if (Math.floor(state.hunger) <= 0) {
             tg.HapticFeedback.notificationOccurred('error');
             tg.showAlert("Кот голоден! 🍖");
@@ -182,7 +191,6 @@ async function loadLeaderboard() {
     } catch (e) { list.innerHTML = "<li>Ошибка топа</li>"; }
 }
 
-// ТАЙМЕР ГОЛОДА
 setInterval(() => {
     if (state.hunger > 0) {
         state.hunger = Math.max(0, state.hunger - 1);
@@ -190,14 +198,11 @@ setInterval(() => {
     }
 }, 10000);
 
-// ЗАПУСК И ОБХОД КЭША КАРТИНОК
 window.onload = () => {
     const v = Date.now();
-    // Прописываем пути к твоим PNG файлам с уникальным ключом
     document.getElementById('pet-img').src = "cat.png?v=" + v;
     document.getElementById('img-feed').src = "feed_btn.png?v=" + v;
     document.getElementById('img-play').src = "play_btn.png?v=" + v;
-    
     loadData();
 };
 </script>
