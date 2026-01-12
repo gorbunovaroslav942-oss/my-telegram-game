@@ -126,7 +126,8 @@ async function saveData() {
             money: state.money,
             hunger: state.hunger,
             name: userName,
-            lastUpdate: firebase.firestore.Timestamp.now() // Сохраняем точное время
+            was_notified: false, // Сбрасываем метку при любом действии в игре
+            lastUpdate: firebase.firestore.Timestamp.now()
         }, { merge: true });
     } catch (e) { console.error(e); }
 }
@@ -197,4 +198,5 @@ window.onload = async () => {
 </script>
 </body>
 </html>
+
 
