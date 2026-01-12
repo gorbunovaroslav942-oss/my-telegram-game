@@ -103,7 +103,7 @@ async function loadData() {
                 const secondsPassed = Math.floor((now - lastSave) / 1000);
                 
                 // Кот теряет 1% каждые 10 минут (600 секунд)
-                const hungerLost = Math.floor(secondsPassed / 5); 
+                const hungerLost = Math.floor(secondsPassed / 600); 
                 
 if (hungerLost > 0) {
     state.hunger = Math.max(0, state.hunger - hungerLost);
@@ -197,6 +197,7 @@ window.onload = async () => {
 </script>
 </body>
 </html>
+
 
 
 
